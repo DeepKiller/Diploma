@@ -6,3 +6,4 @@
 /BDB/BDB/obj/Debug
 /BDB/BDB/obj/Release
 /.vs/
+*.cache
