@@ -1,21 +1,27 @@
 ﻿using System.IO;
 using System;
+using System.Text.Json;
+using System.Collections;
 
 namespace BDB
 {
-    class Table
+    class DataBase // Управление общим файлом, сборка, шифрование, сжатие, и обратно
     {
-        public string Name;// название таблицы
-        private Row[] Rows; // перечень рядов, 0 - заголовок
-        private string[] Ids; // Ключи записей и их позиции
-        private string Path; // расположение файла таблицы 
+
+    }
+    class Table //управление таблицами
+    {
+        public string Name { set; get; }// название таблицы
+        public ArrayList Rows { set; get; }  // перечень рядов, 0 - заголовок
+        public ArrayList Ids { set; get; } // Ключи записей и их позиции
+        public string Path { set; get; } // расположение файла таблицы 
         
-        public Table()
+        public Table() //Конструктор для создания стандартного файла
         {
             GenerateNewFile();
             MakeForConstruct();
-        }
-        public Table(string FilePath)
+        } 
+        public Table(string FilePath) //конструктор для создания файла в конкретном месте
         {
             if (FilePath == "" || FilePath == null)
             {
@@ -29,86 +35,93 @@ namespace BDB
             }
             MakeForConstruct();
         }
-        private void GenerateNewFile()
+        private void GenerateNewFile() //Функция, генерации параметров стандартного файла
         {
             string[] Files = Directory.GetFiles(Directory.GetCurrentDirectory(), "Table*.bdbt");
             Name = "Table" + (Files.Length + 1);
             Path = Name + ".bdbt";
         }
-        private void MakeForConstruct()
+        private void MakeForConstruct() //Создание файла, и свойств класса
         {
             File.Create(Path).Close();
-            Rows = new Row[0];
-            Ids = new string[0];
+            Rows = new ArrayList();
+            Ids = new ArrayList();
         }
-        public void SetColNames(string[] ColNames) 
+        public void SetColNames(string[] ColNames) //Установка названий колонок, id всегда первая
         {
-            if(Rows.Length == 0)
-                Array.Resize(ref Rows, 1);
-            string[] CL = { "id|"};
+            string[] CL = { "id"};
             int pos = 1;
             for (int i = 1; i < ColNames.Length; i++)
             {
                 if (ColNames[i - pos].ToLower() != "id")
                 {
                     Array.Resize(ref CL, CL.Length+1);
-                    if (i != ColNames.Length - 1)
-                        CL[i] = ColNames[i - pos] + "|";
-                    else
-                        CL[i] = ColNames[i - pos] + ";";
+                    CL[i] = ColNames[i - pos];
                 }
                 else
                 {
                     pos--;
                 }
             }
-            Rows[0] = new Row(CL);
+            Rows.Add(new Row(CL));
         }
-        public void AddRow(string[] RowData)
+        public void AddRow(string[] RowData) //Добавление нового ряда
         {
-            if (RowData.Length > Rows[0].cols.Length - 1)
+            Row row = (Row)Rows[0];
+            if (RowData.Length > row.cols.Count - 1)
                 throw new Exception("too many arguments");
             string[] arrtowrite = new string[RowData.Length + 1];
-            arrtowrite[0] = Rows.Length.ToString();
+            arrtowrite[0] = (Rows.Count-1).ToString();
             RowData.CopyTo(arrtowrite, 1);
-            for(int i =0; i < arrtowrite.Length - 1; i++)
-            {
-                arrtowrite[i] += "|";
-            }
-            arrtowrite[arrtowrite.Length-1] += ";";
-            Array.Resize(ref Rows, Rows.Length + 1);
-            Rows[Rows.Length-1] = new Row(arrtowrite);
-            Array.Resize(ref Ids, Ids.Length + 1);
-            Ids[Ids.Length - 1] = arrtowrite[0]; 
+            Rows.Add(new Row(arrtowrite));
+            Ids.Add(arrtowrite[0]);
         }
-        public void SaveChanges()
+        public void SaveChanges() //запись в файл
         {
             File.Delete(Path);
-            StreamWriter sWriter = File.AppendText(Path);
-            for(int i=0; i < Rows.Length; i++)
+            JsonSerializerOptions jsonSerializer = new JsonSerializerOptions();
+            jsonSerializer.WriteIndented = true;
+            string json = JsonSerializer.Serialize(this,jsonSerializer);
+            File.AppendAllText(Path, json);
+        }
+        public void LoadTableData(string FilePath) //загрузка из файла
+        {
+            string ReadedJson = File.ReadAllText(FilePath);
+            Table temp = (Table)JsonSerializer.Deserialize(ReadedJson,GetType());
+            for (int i = 0; i < temp.Rows.Count; i++)
             {
-                string write = "";
-                foreach (string data in Rows[i].cols)
-                    write += data;
-                sWriter.WriteLine(write);
-                if (i > 0)
-                    Ids[i - 1] += i;
+                Row r = (Row)JsonSerializer.Deserialize(((JsonElement)temp.Rows[i]).ToString(), new Row().GetType());
+                for(int j = 0; j < r.cols.Count; j++)
+                {
+                    r.cols[j] = r.cols[j].ToString();
+                }
+                Rows.Add(r);
             }
-            sWriter.Close();
-            File.AppendAllLines(Path,Ids);
+            for (int i = 0; i < temp.Ids.Count; i++)
+            {
+                Ids.Add(temp.Ids[i].ToString());
+            }
+            string[] emptyFile = Directory.GetFiles(Directory.GetCurrentDirectory(), "Table*.bdbt"); //багфикс, удаление файла после вызова сериалазером пустого конструктора
+            File.Delete(emptyFile[emptyFile.Length-1]);
+        }
+        public void DeleteTable()//Удаление Файла таблицы
+        {
+            File.Delete(Path);
         }
     }
-    class Row
+    class Row //подкласс для рядов
     {
-        public string[] cols; //содержимое строки, столбцы
-        public Row(string[] data)
+        public ArrayList cols { get; set; } //содержимое строки, столбцы
+        public Row()// НЕ ТРОГАТЬ !!!!!!!!!!!!
         {
-            int pos = 0;
-            foreach(string d in data)
+
+        }
+        public Row(string[] data) //запись данных в объект
+        {
+            cols = new ArrayList();
+            for(int i = 0; i < data.Length; i++)
             {
-                Array.Resize(ref cols, pos + 1);
-                cols[pos] = d;
-                pos++;
+                cols.Add(data[i]);
             }
         }
     }

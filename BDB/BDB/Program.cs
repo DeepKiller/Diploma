@@ -1,6 +1,4 @@
-﻿
-
-namespace BDB
+﻿namespace BDB
 {
     class Program
     {
@@ -12,6 +10,9 @@ namespace BDB
             test.SetColNames(Cols);
             test.AddRow(Data);
             test.SaveChanges();
+            Table test1 = new Table("test1.bdbt");
+            test1.LoadTableData("test.bdbt");
+            test1.SaveChanges();
         }
     }
 }
