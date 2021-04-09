@@ -1,22 +1,13 @@
-﻿using System.IO;
-using System;
-using System.Text.Json;
+﻿using System;
 using System.Collections;
+using System.IO;
+using System.Text;
+using System.Text.Json;
 
 namespace BDB
 {
     static class DataBase // Управление общим файлом, сборка, шифрование, сжатие, и обратно
     {
-        private struct CompressData 
-        { 
-            public int Size { get; set; }
-            public int Char { get; set; }
-            public CompressData(int size, byte chr)
-            {
-                Size = size;
-                Char = Convert.ToInt32(chr);
-            }
-        }
         static string Path = ""; //путь к файлу базы
         static public void MakeBaseFile(string path)//сборка таблиц в файл базы
         {
@@ -39,47 +30,125 @@ namespace BDB
         }
         static public void CompressByGlobalPath(string Password)//сжатие и шифрование базы
         {
-            byte[] Data = File.ReadAllBytes(Path);
-            int pos = 0;
-            ArrayList compressed = new ArrayList();
-            while (pos < Data.Length)
+            ArrayList dict = new ArrayList();
+            FillDict(ref dict); //заполнение словаря всеми доступными одиночными символами
+            StringBuilder seq = new StringBuilder();
+            if (File.Exists(Path + ".r"))
+                File.Delete(Path + ".r");
+            File.Move(Path, Path + ".r");
+            StreamReader reader = new StreamReader(Path + ".r");
+            BinaryWriter writer = new BinaryWriter(File.Open(Path, FileMode.OpenOrCreate));
+            string output = "";
+            char c;
+            while (reader.Peek() != -1)
             {
-                int Spos = pos;
-
-                while(Data[pos] == Data[Spos])
+                int bytesize = 0;
+                for (int i = 8; i < 16; i++)
+                    if (dict.Count < Math.Pow(2, i))
+                    {
+                        bytesize = i; break;
+                    }
+                c = (char)reader.Read();
+                if (dict.Contains(seq.ToString() + c))
                 {
-                    Spos++;
-                    if (Spos == Data.Length)
-                        break;
+                    seq.Append(c);
                 }
-                compressed.Add(new CompressData(Spos - pos, Data[pos]));
-                pos = Spos;
+                else
+                {
+                    string temp = Convert.ToString(dict.IndexOf(seq.ToString()), 2);
+                    while (temp.Length < bytesize)
+                    {
+                        temp = "0" + temp;
+                    }
+                    output += temp;
+                    while (output.Length >= 8)
+                    {
+                        byte id = Convert.ToByte(output.Substring(0, 8), 2);
+                        output = output.Remove(0, 8);
+                        writer.Write(id);
+                    }
+                    dict.Add(seq.ToString() + c);
+                    seq.Clear().Append(c);
+                }
             }
-            File.Delete(Path);
-            Data = new byte[compressed.Count*2];
-            pos = 0;
-            for(int i=0; i < Data.Length; i += 2)
+            while (output.Length < 8)
+                output += "0";
+            output += Convert.ToString(dict.IndexOf(seq.ToString()), 2);
+            while (output.Length >= 8)
             {
-                Data[i] = Convert.ToByte(((CompressData)compressed[pos]).Size);
-                Data[i + 1] = Convert.ToByte(((CompressData)compressed[pos]).Char);
-                pos++;
+                byte id = Convert.ToByte(output.Substring(0, 8), 2);
+                output = output.Remove(0, 8);
+                writer.Write(id);
             }
-            File.WriteAllBytes(Path,Data);
+            while (output.Length < 8)
+                output += "0";
+            writer.Write(Convert.ToByte(output,2));
+            writer.Close();
+            reader.Close();
+            File.Delete(Path + ".r");
+        }
+        static private void FillDict(ref ArrayList dict)
+        {
+            for (int i = char.MinValue; i <= char.MaxValue; i++)
+            {
+                char c = Convert.ToChar(i);
+                if ((i >= 0 && i <= 126) || (i >= 160 && i <= 191) || (i >= 247 && i <= 248) || (i >= 1040 && i <= 1103))
+                {
+                    dict.Add(c.ToString());
+                }
+            }
         }
         static public void DecompressByGlobalPath(string Password)//востановление базы
         {
-            byte[] Data = File.ReadAllBytes(Path);
-            byte[] decompressed = new byte[0];
-            for(int i=0; i< Data.Length; i += 2)
+            ArrayList dict = new ArrayList();
+            FillDict(ref dict); //заполнение словаря всеми доступными одиночными символами
+            StringBuilder seq = new StringBuilder();
+            if (File.Exists(Path + ".r"))
+                File.Delete(Path + ".r");
+            File.Move(Path, Path + ".r");
+            BinaryReader reader = new BinaryReader(File.Open(Path + ".r", FileMode.Open));
+            StreamWriter writer = new StreamWriter(File.Open(Path, FileMode.OpenOrCreate));
+            string output = "";
+            string c;
+            while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
-                for (int j = 0; j < Convert.ToInt32(Data[i]); j++)
+                c = ReadNextSection(ref dict, ref output, ref reader);
+                if (dict.Contains(seq.ToString() + c))
                 {
-                    Array.Resize(ref decompressed, decompressed.Length + 1);
-                    decompressed[decompressed.Length - 1] = Data[i + 1];
+                    if (reader.BaseStream.Position == 1)
+                        writer.Write(c);
+                    seq.Append(c);
+                }
+                else
+                {
+                    writer.Write(c);
+                    dict.Add(seq.ToString()+c[0]);
+                    seq.Clear().Append(c);
                 }
             }
-            File.Delete(Path);
-            File.WriteAllBytes(Path,decompressed);
+            writer.Close();
+            reader.Close();
+            File.Delete(Path + ".r");
+        }
+        static private string ReadNextSection(ref ArrayList dict, ref string output, ref BinaryReader reader)
+        {
+            int bytesize = 0;
+            for (int i = 8; i < 16; i++)
+                if (dict.Count < Math.Pow(2, i)-1)
+                {
+                    bytesize = i; break;
+                }
+            while (output.Length < bytesize)
+            {
+                string readed = Convert.ToString(reader.ReadByte(), 2);
+                while (readed.Length < 8)
+                    readed = "0" + readed;
+                output += readed;
+            }
+            string temp = output.Substring(0, bytesize);
+            output = output.Remove(0, bytesize);
+            string c = (string)dict[Convert.ToInt32(temp, 2)];
+            return c;
         }
     }
     //TODO: добавть связи таблиц
@@ -105,12 +174,12 @@ namespace BDB
         public ArrayList Rows { set; get; }  // перечень рядов, 0 - заголовок
         public ArrayList Ids { set; get; } // Ключи записей и их позиции
         public string Path { set; get; } // расположение файла таблицы 
-        
+
         public Table() //Конструктор для создания стандартного файла
         {
             GenerateNewFile();
             MakeForConstruct();
-        } 
+        }
         public Table(string FilePath) //конструктор для создания файла в конкретном месте
         {
             if (FilePath == "" || FilePath == null)
@@ -121,7 +190,7 @@ namespace BDB
             {
                 string[] tPath = FilePath.Split('\\');
                 Path = FilePath;
-                Name = tPath[tPath.Length-1].Split('.')[0];
+                Name = tPath[tPath.Length - 1].Split('.')[0];
             }
             MakeForConstruct();
         }
@@ -139,13 +208,13 @@ namespace BDB
         }
         public void SetColNames(string[] ColNames) //Установка названий колонок, id всегда первая
         {
-            string[] CL = { "id"};
+            string[] CL = { "id" };
             int pos = 1;
             for (int i = 1; i < ColNames.Length; i++)
             {
                 if (ColNames[i - pos].ToLower() != "id")
                 {
-                    Array.Resize(ref CL, CL.Length+1);
+                    Array.Resize(ref CL, CL.Length + 1);
                     CL[i] = ColNames[i - pos];
                 }
                 else
@@ -161,7 +230,7 @@ namespace BDB
             if (RowData.Length > row.cols.Count - 1)
                 throw new Exception("too many arguments");
             string[] arrtowrite = new string[RowData.Length + 1];
-            arrtowrite[0] = (Rows.Count-1).ToString();
+            arrtowrite[0] = (Rows.Count - 1).ToString();
             RowData.CopyTo(arrtowrite, 1);
             Rows.Add(new Row(arrtowrite));
             Ids.Add(arrtowrite[0]);
@@ -171,19 +240,19 @@ namespace BDB
             File.Delete(Path);
             JsonSerializerOptions jsonSerializer = new JsonSerializerOptions();
             jsonSerializer.WriteIndented = true;
-            string json = JsonSerializer.Serialize(this,jsonSerializer);
+            string json = JsonSerializer.Serialize(this, jsonSerializer);
             File.AppendAllText(Path, json);
         }
         public void LoadTableData(string FilePath) //загрузка из файла
         {
             string ReadedJson = File.ReadAllText(FilePath);
-            Table temp = (Table)JsonSerializer.Deserialize(ReadedJson,GetType());
+            Table temp = (Table)JsonSerializer.Deserialize(ReadedJson, GetType());
             Name = temp.Name;
             Path = temp.Path;
             for (int i = 0; i < temp.Rows.Count; i++)
             {
                 Row r = (Row)JsonSerializer.Deserialize(((JsonElement)temp.Rows[i]).ToString(), new Row().GetType());
-                for(int j = 0; j < r.cols.Count; j++)
+                for (int j = 0; j < r.cols.Count; j++)
                 {
                     r.cols[j] = r.cols[j].ToString();
                 }
@@ -194,7 +263,7 @@ namespace BDB
                 Ids.Add(temp.Ids[i].ToString());
             }
             string[] emptyFile = Directory.GetFiles(Directory.GetCurrentDirectory(), "Table*.bdbt"); //багфикс, удаление файла после вызова сериалазером пустого конструктора
-            File.Delete(emptyFile[emptyFile.Length-1]);
+            File.Delete(emptyFile[emptyFile.Length - 1]);
         }
         public void DeleteTable()//Удаление Файла таблицы
         {

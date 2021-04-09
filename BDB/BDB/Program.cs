@@ -6,7 +6,7 @@
         {
             Table test = new Table("test.bdbt");
             string[] Cols = { "one", "two", "id" };
-            string[] Data = { "1", "2"};
+            string[] Data = { "1", "2" };
             test.SetColNames(Cols);
             test.AddRow(Data);
             test.SaveChanges();
@@ -17,7 +17,7 @@
             test1.SaveChanges();
             DataBase.MakeBaseFile("test.bdb");
             DataBase.CompressByGlobalPath("Pass");
-            //DataBase.DecompressByGlobalPath("Pass");
+            DataBase.DecompressByGlobalPath("Pass");
         }
     }
 }
