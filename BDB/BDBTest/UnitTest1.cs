@@ -1,8 +1,13 @@
-﻿namespace BDB
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using BDB;
+
+namespace BDBTest
 {
-    class Program
+    [TestClass]
+    public class UnitTest1
     {
-        static void Main()
+        [TestMethod]
+        public void TestMethod1()
         {
             Table test = new Table("test.bdbt");
             string[] Cols = { "one", "two", "id" };
@@ -16,8 +21,10 @@
             test.LoadTableData("test.bdbt");
             test1.SaveChanges();
             DataBase.MakeBaseFile("test.bdb");
-            DataBase.CompressByGlobalPath("Pass");
-            DataBase.DecompressByGlobalPath("Pass");
+            DataBase.CompressByGlobalPath();
+            DataBase.CryptData("Pass");
+            DataBase.DeCryptData("Pass");
+            DataBase.DecompressByGlobalPath();
         }
     }
 }
