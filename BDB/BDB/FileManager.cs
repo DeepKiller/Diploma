@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 
 namespace BDB
 {
-    //TODO: разбиение файла на таблицы
     /// <summary>
     /// Класс для управления базой данных
     /// </summary>
@@ -51,6 +50,20 @@ namespace BDB
             foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.bdbt"))
                 File.Delete(file);
             Path = path;
+        }
+        /// <summary>
+        /// Разбивает базу данных на таблицы
+        /// </summary>
+        static public void DisassembleBaseFile()
+        {
+            string json = File.ReadAllText(Path);
+            Table[] tables = new Table[0];
+            tables = (Table[])JsonSerializer.Deserialize(json,tables.GetType());
+            foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.bdbt"))
+                File.Delete(file);
+            foreach (Table table in tables)
+                table.SaveChanges();
+            File.Delete(Path);
         }
         /// <summary>
         /// Сжатие данных
@@ -272,8 +285,6 @@ namespace BDB
             File.Delete(Path + ".r");
         }
     }
-    //TODO: добавить связи таблиц
-    //TODO: добавить журнализацию
     /// <summary>
     /// Класс для управления таблицами
     /// </summary>
@@ -307,6 +318,53 @@ namespace BDB
                     Cols.Add(data[i]);
                 }
             }
+        }
+        /// <summary>
+        /// Класс организации связей
+        /// </summary>
+        class Relation
+        {
+            /// <summary>
+            /// Объект свзяанной таблицы
+            /// </summary>
+            public Table ConnectedTable { get; set; }
+            public Relation() { }
+            public Relation(Table tableToConnect)
+            {
+                ConnectedTable = tableToConnect;
+            }
+        }
+        /// <summary>
+        /// Свойство для хранения связей
+        /// </summary>
+        public ArrayList Relations { get; set; }
+        /// <summary>
+        /// Метод добавленяи свзи с таблицей
+        /// </summary>
+        /// <param name="tableToAdd">Таблица для связывания</param>
+        public void AddRelation(ref Table tableToAdd)
+        {
+            Relations.Add(new Relation(tableToAdd));
+            tableToAdd.Relations.Add(this);
+        }
+        /// <summary>
+        /// Метод для удаления связи
+        /// </summary>
+        /// <param name="tableToDelete">Таблица связь с которой нужно удалить</param>
+        public void DeleteRelation(ref Table tableToDelete)
+        {
+            Relations.Remove(tableToDelete);
+            tableToDelete.Relations.Remove(this);
+        }
+        /// <summary>
+        /// Удаление ряда
+        /// </summary>
+        /// <param name="id">ID ряда для удаления</param>
+        public void DeleteRow(int id)
+        {
+            for (int i = 0; i < Rows.Count; i++)
+                if (((Row)Rows[i]).Cols[0].ToString() == id.ToString())
+                    Rows.RemoveAt(i);
         }
         /// <summary>
         /// Свойство названия таблицы
@@ -367,6 +425,7 @@ namespace BDB
             File.Create(Path).Close();
             Rows = new ArrayList();
             Ids = new ArrayList();
+            Relations = new ArrayList();
         }
         /// <summary>
         /// Устанавливает названия колонок, id всегда первая, при наличии id в списке пропускает
