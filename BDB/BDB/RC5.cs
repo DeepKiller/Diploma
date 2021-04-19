@@ -72,7 +72,7 @@ namespace BDB
         static public void CryptData(string Password, ref ulong A, ref ulong B)
         {
             ulong[] AdvancedKeys_S = new ulong[2 * (Rounds_R + 1)];
-            _RC5(ref Password, ref AdvancedKeys_S);
+            RC5Prepare(ref Password, ref AdvancedKeys_S);
             A +=  AdvancedKeys_S[0];
             B +=  AdvancedKeys_S[1];
             for (int i = 1; i < Rounds_R+1; i++)
@@ -90,7 +90,7 @@ namespace BDB
         static public void DeCryptData(string Password, ref ulong A, ref ulong B)
         {
             ulong[] AdvancedKeys_S = new ulong[2 * (Rounds_R + 1)];
-            _RC5(ref Password, ref AdvancedKeys_S);
+            RC5Prepare(ref Password, ref AdvancedKeys_S);
             for (int i = Rounds_R; i >0; i--)
             {
                 B = ShiftCycleRigth(B - AdvancedKeys_S[2 * i + 1], (int)A) ^ A;
@@ -104,7 +104,7 @@ namespace BDB
         /// </summary>
         /// <param name="Password">Пароль</param>
         /// <param name="AdvancedKeys_S">Массив расшириных ключей</param>
-        static private void _RC5(ref string Password, ref ulong[] AdvancedKeys_S)
+        static private void RC5Prepare(ref string Password, ref ulong[] AdvancedKeys_S)
         {
             byte PasswordByteSize_B = Convert.ToByte(Encoding.UTF8.GetBytes(Password).Length);
             //разбиение ключа на слова

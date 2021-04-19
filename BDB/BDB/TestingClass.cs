@@ -15,10 +15,14 @@
             Table test1 = new Table("test1.bdbt");
             test1.SetColNames(Cols);
             test1.AddRow(Data);
-            test.LoadTableData("test.bdbt");
+            //test.LoadTableData("test.bdbt");
             test1.SaveChanges();
             test.AddRelation(ref test1);
             test.DeleteRelation(ref test1);
+            string[] Data1 = { "a","b"};
+            test.GetRowByID(0).ChangeRow(Data1);
+            test.SaveChanges();
+            test1.SaveChanges();
             DataBase.MakeBaseFile("test.bdb");
             DataBase.CompressByGlobalPath();
             DataBase.CryptData("Pass");

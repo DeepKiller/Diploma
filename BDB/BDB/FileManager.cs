@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Security.Cryptography;
-
+//TODO: Вынести сжатие отдельно, переписать все работы с битами!
 namespace BDB
 {
     /// <summary>
@@ -58,7 +58,7 @@ namespace BDB
         {
             string json = File.ReadAllText(Path);
             Table[] tables = new Table[0];
-            tables = (Table[])JsonSerializer.Deserialize(json,tables.GetType());
+            tables = (Table[])JsonSerializer.Deserialize(json, tables.GetType());
             foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.bdbt"))
                 File.Delete(file);
             foreach (Table table in tables)
@@ -160,6 +160,13 @@ namespace BDB
             while (reader.BaseStream.Position != reader.BaseStream.Length)
             {
                 c = ReadNextSection(ref dict, ref output, ref reader);
+                if (reader.BaseStream.Position == reader.BaseStream.Length)
+                {
+                    int charCode = c[0];
+                    charCode <<= 7;
+                    charCode |= Convert.ToInt32(output.Substring(0,output.Length-2), 2);
+                    c = ((char)charCode).ToString();
+                }
                 if (dict.Contains(seq.ToString() + c))
                 {
                     if (reader.BaseStream.Position == 1)
@@ -211,6 +218,7 @@ namespace BDB
         static public void CryptData(string Password)
         {
             BinaryWriter writer = new BinaryWriter(File.Open(Path, FileMode.Open));
+            long FileSize = writer.BaseStream.Length;
             writer.BaseStream.Position = writer.BaseStream.Length;
             while (writer.BaseStream.Length % 16 != 0)
                 writer.Write((byte)0);
@@ -233,6 +241,7 @@ namespace BDB
             for (int i = 0; i < hashToWrite.Length; i++)
                 hashToWrite[i] = passwordHash[i * 4];
             writer.Write(hashToWrite);
+            writer.Write(FileSize);
             reader.Close();
             writer.Close();
             File.Delete(Path + ".r");
@@ -249,37 +258,30 @@ namespace BDB
             File.Move(Path, Path + ".r");
             BinaryReader reader = new BinaryReader(File.Open(Path + ".r", FileMode.Open));
             BinaryWriter writer = new BinaryWriter(File.Open(Path, FileMode.OpenOrCreate));
-            reader.BaseStream.Position = reader.BaseStream.Length - 4;
+            reader.BaseStream.Position = reader.BaseStream.Length - 12;
             byte[] hashToCheck = reader.ReadBytes(4);
             byte[] passwordHash = new MD5CryptoServiceProvider().ComputeHash(Encoding.UTF8.GetBytes(Password));
             for (int i = 0; i < hashToCheck.Length; i++)
                 if (hashToCheck[i] != passwordHash[i * 4])
                     throw new IncorrectPasswordException();
+            long FileSize = reader.ReadInt64();
             reader.BaseStream.Position = 0;
-            while (reader.BaseStream.Position != reader.BaseStream.Length - 4)
+            while (reader.BaseStream.Position != reader.BaseStream.Length - 12)
             {
                 ulong A = reader.ReadUInt64();
                 ulong B = reader.ReadUInt64();
                 RC5.DeCryptData(Password, ref A, ref B);
-                if (A < 72057594037927935 && reader.BaseStream.Position >= reader.BaseStream.Position - 16)
-                {
-                    byte[] o = BitConverter.GetBytes(A);
-                    foreach (byte b in o)
-                        if (b != 0)
-                            writer.Write(b);
-                }
-                else
-                    writer.Write(A);
-                if (B < 72057594037927935 && reader.BaseStream.Position >= reader.BaseStream.Position - 16)
-                {
-                    byte[] o = BitConverter.GetBytes(B);
-                    foreach (byte b in o)
-                        if (b != 0)
-                            writer.Write(b);
-                }
-                else
-                    writer.Write(B);
+                writer.Write(A);
+                writer.Write(B);
             }
+            reader.Close();
+            writer.Close();
+            File.Delete(Path + ".r");
+            File.Move(Path, Path + ".r");
+            reader = new BinaryReader(File.Open(Path + ".r", FileMode.Open));
+            writer = new BinaryWriter(File.Open(Path, FileMode.OpenOrCreate));
+            while (reader.BaseStream.Position !=FileSize)
+                writer.Write(reader.ReadByte());
             reader.Close();
             writer.Close();
             File.Delete(Path + ".r");
@@ -290,10 +292,17 @@ namespace BDB
     /// </summary>
     public class Table
     {
+        class TooManyArgumentsException : Exception
+        {
+            public TooManyArgumentsException() : base("Too many arguments!")
+            {
+
+            }
+        }
         /// <summary>
         /// Подкласс для рядов в таблице
         /// </summary>
-        class Row
+        public class Row
         {
             /// <summary>
             /// Содержимое строки, столбцы
@@ -318,6 +327,23 @@ namespace BDB
                     Cols.Add(data[i]);
                 }
             }
+            /// <summary>
+            /// Заменяет значения ряда, на новые
+            /// </summary>
+            /// <param name="data">Массив значений для замены</param>
+            public void ChangeRow(string[] data)
+            {
+                ArrayList arrayList = new ArrayList
+                {
+                    Cols[0]
+                };
+                Cols.Clear();
+                for (int i = 0; i < data.Length; i++)
+                {
+                    arrayList.Add(data[i]);
+                }
+                Cols = arrayList;
+            }
         }
         /// <summary>
         /// Класс организации связей
@@ -334,6 +360,10 @@ namespace BDB
                 ConnectedTable = tableToConnect;
             }
         }
+        /// <summary>
+        /// Хранит имя пользователя создавшего таблицу, по-умолчанию имя пользователя Windows. Может быть изменено.
+        /// </summary>
+        public string AuthorName { get; set; }
         /// <summary>
         /// Свойство для хранения связей
         /// </summary>
@@ -364,7 +394,10 @@ namespace BDB
         {
             for (int i = 0; i < Rows.Count; i++)
                 if (((Row)Rows[i]).Cols[0].ToString() == id.ToString())
+                {
+                    Ids.Remove(((Row)Rows[i]).Cols[0]);
                     Rows.RemoveAt(i);
+                }
         }
         /// <summary>
         /// Свойство названия таблицы
@@ -426,6 +459,7 @@ namespace BDB
             Rows = new ArrayList();
             Ids = new ArrayList();
             Relations = new ArrayList();
+            AuthorName = Environment.UserName;
         }
         /// <summary>
         /// Устанавливает названия колонок, id всегда первая, при наличии id в списке пропускает
@@ -457,7 +491,7 @@ namespace BDB
         {
             Row row = (Row)Rows[0];
             if (RowData.Length > row.Cols.Count - 1)
-                throw new Exception("too many arguments");
+                throw new TooManyArgumentsException();
             string[] arrtowrite = new string[RowData.Length + 1];
             arrtowrite[0] = (Rows.Count - 1).ToString();
             RowData.CopyTo(arrtowrite, 1);
@@ -484,7 +518,7 @@ namespace BDB
         public void LoadTableData(string FilePath)
         {
             string ReadedJson = File.ReadAllText(FilePath);
-            Table temp = (Table)JsonSerializer.Deserialize(ReadedJson, GetType());
+              Table temp = (Table)JsonSerializer.Deserialize(ReadedJson, GetType());
             Name = temp.Name;
             Path = temp.Path;
             for (int i = 0; i < temp.Rows.Count; i++)
@@ -509,6 +543,18 @@ namespace BDB
         public void DeleteTable()
         {
             File.Delete(Path);
+        }
+        /// <summary>
+        /// Получает ряд по его id
+        /// </summary>
+        /// <param name="id">id для поиска</param>
+        /// <returns>возвращает объект Row, либо null</returns>
+        public Row GetRowByID(int id)
+        {
+            foreach (Row row in Rows)
+                if (row.Cols[0].ToString() == id.ToString())
+                    return row;
+            return null;
         }
     }
 
