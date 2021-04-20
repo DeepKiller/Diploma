@@ -73,9 +73,9 @@ namespace BDB
         {
             ulong[] AdvancedKeys_S = new ulong[2 * (Rounds_R + 1)];
             RC5Prepare(ref Password, ref AdvancedKeys_S);
-            A +=  AdvancedKeys_S[0];
-            B +=  AdvancedKeys_S[1];
-            for (int i = 1; i < Rounds_R+1; i++)
+            A += AdvancedKeys_S[0];
+            B += AdvancedKeys_S[1];
+            for (int i = 1; i < Rounds_R + 1; i++)
             {
                 A = ShiftCycleLeft(A ^ B, (int)B) + AdvancedKeys_S[2 * i];
                 B = ShiftCycleLeft(B ^ A, (int)A) + AdvancedKeys_S[2 * i + 1];
@@ -91,7 +91,7 @@ namespace BDB
         {
             ulong[] AdvancedKeys_S = new ulong[2 * (Rounds_R + 1)];
             RC5Prepare(ref Password, ref AdvancedKeys_S);
-            for (int i = Rounds_R; i >0; i--)
+            for (int i = Rounds_R; i > 0; i--)
             {
                 B = ShiftCycleRigth(B - AdvancedKeys_S[2 * i + 1], (int)A) ^ A;
                 A = ShiftCycleRigth(A - AdvancedKeys_S[2 * i], (int)B) ^ B;
@@ -110,7 +110,7 @@ namespace BDB
             //разбиение ключа на слова
             int U = HalfBlockSize_W >> 3;
             int T = 2 * (Rounds_R + 1);
-            int WordSize_C = PasswordByteSize_B % (HalfBlockSize_W >> 3) > 0 ? PasswordByteSize_B / U +1 : PasswordByteSize_B / U;
+            int WordSize_C = PasswordByteSize_B % (HalfBlockSize_W >> 3) > 0 ? PasswordByteSize_B / U + 1 : PasswordByteSize_B / U;
             ulong[] WordArray_L = new ulong[WordSize_C];
             for (int i = PasswordByteSize_B - 1; i >= 0; i--)
                 WordArray_L[i / U] = ShiftCycleRigth(WordArray_L[i / U], 8) + Encoding.UTF8.GetBytes(Password)[i];

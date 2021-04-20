@@ -11,6 +11,16 @@
             test.AddRow(Data);
             test.DeleteRow(0);
             test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
+            test.AddRow(Data);
             test.SaveChanges();
             Table test1 = new Table("test1.bdbt");
             test1.SetColNames(Cols);
@@ -19,15 +29,16 @@
             test1.SaveChanges();
             test.AddRelation(ref test1);
             test.DeleteRelation(ref test1);
-            string[] Data1 = { "a","b"};
+            string[] Data1 = { "a", "b" };
             test.GetRowByID(0).ChangeRow(Data1);
+            test.GetRowByID(6).ChangeRow(Data1);
             test.SaveChanges();
             test1.SaveChanges();
             DataBase.MakeBaseFile("test.bdb");
-            DataBase.CompressByGlobalPath();
+            DataBase.CompresByGlobalPath();
             DataBase.CryptData("Pass");
             DataBase.DeCryptData("Pass");
-            DataBase.DecompressByGlobalPath();
+            DataBase.DecompresByGlobalPath();
             DataBase.DisassembleBaseFile();
         }
     }
