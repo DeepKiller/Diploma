@@ -1,0 +1,149 @@
+﻿<Window x:Class="BDBSM_WindowsApp.Views.StartWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BDBSM_WindowsApp.Views"
+        mc:Ignorable="d"
+        Title="BDBSM Studio" Height="450" Width="800"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid x:Name="QuickAccessBar" Grid.Row="0"  Grid.ColumnSpan="2"
+              Background="#14274e"
+              MouseDown="QuickAccessBar_MouseDown"
+              MouseUp="QuickAccessBar_MouseUp">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+            </Grid.ColumnDefinitions>
+
+
+            <Button  x:Name="ButtonHelp" Click="ButtonHelp_Click" 
+                     Style="{StaticResource WindowControlButtonTheme}"
+                     Grid.Column="8"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     FontSize="14">
+                <Button.Content>
+                    ?
+                </Button.Content>
+            </Button>
+
+            <Button  x:Name="ButtonRollUp" Click="ButtonRollUp_Click"
+                     Style="{StaticResource WindowControlButtonTheme}"
+                     Grid.Column="9"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     FontSize="14">
+                <Button.Content>
+                    –
+                </Button.Content>
+            </Button>
+
+            <Button  x:Name="ButtonExpand" Click="ButtonExpand_Click"
+                     Style="{StaticResource WindowControlButtonTheme}"
+                     Grid.Column="10"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     FontSize="14">
+                <Button.Content>
+                    ▢
+                </Button.Content>
+            </Button>
+
+            <Button x:Name="ButtonClose" Click="ButtonClose_Click"
+                    Style="{StaticResource WindowControlButtonTheme}"
+                    Grid.Column="11"
+                    VerticalContentAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    FontSize="14">
+                <Button.Content>
+                    ×
+                </Button.Content>
+            </Button>
+        </Grid>
+
+        <Grid x:Name="SideBar" 
+              Grid.Column="0" 
+              Grid.RowSpan="2" 
+              Background="#394867" 
+              Margin="0,1,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="180"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+
+            <Image Source="/Images/Icons/Logo.png" Height="140"
+                   RenderOptions.BitmapScalingMode="HighQuality"  Grid.RowSpan="2" />
+
+            <Label Grid.Row="2" Content="v1.0.0" HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Foreground="White" Margin="3,0,0,3"
+                   FontSize="14"/>
+        </Grid>
+        <Grid x:Name="MainSpace" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition />
+                <RowDefinition Height="40"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Label Content="Основное" HorizontalAlignment="Left" VerticalAlignment="Center" 
+                 Grid.Row="0"/>
+
+            <Line Stroke="#14274e" StrokeThickness="2" X1="{Binding Source={x:Static SystemParameters.FullPrimaryScreenWidth}}" Y1="0" Y2="0" Grid.Row="2"/>
+            <Label Content="Шаблоны" HorizontalAlignment="Left" VerticalAlignment="Center" 
+                 Grid.Row="2"/>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Button x:Name="ButtonCreateNewDB" Style="{StaticResource StartWindowButtonTheme}"
+                    Click="ButtonCreateNewDB_Click" RenderTransformOrigin="0.5,0.5">
+
+                    <StackPanel>
+                        <Image Source="/Images/Icons/CreateNewDB.png" 
+                               RenderOptions.BitmapScalingMode="HighQuality" 
+                               Height="110" RenderTransformOrigin="0.5,0.5" />
+
+                        <TextBlock Text="Создать новую БД" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ButtonOpenDB" 
+                        Style="{StaticResource StartWindowButtonTheme}"
+                    Click="ButtonOpenDB_Click">
+                    <StackPanel VerticalAlignment="Bottom">
+                        <Image Source="/Images/Icons/OpenDB.png" Height="110" 
+                               RenderOptions.BitmapScalingMode="HighQuality" 
+                               HorizontalAlignment="Center"/>
+                        <TextBlock Text="Открыть БД" Margin="0,10,0,0" 
+                                   VerticalAlignment="Bottom"
+                                   HorizontalAlignment="Center" TextAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+
+</Window>

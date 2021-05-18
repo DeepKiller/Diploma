@@ -2,8 +2,19 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:BDBSM_WindowsApp"
-             StartupUri="Views/MainWindow.xaml">
+             StartupUri="Views/StartWindow.xaml">
     <Application.Resources>
-         
+
+        <ResourceDictionary>
+            <FontFamily x:Key="Dosis">./Fonts/Dosis.ttf#Dosis</FontFamily>
+            <FontFamily x:Key="Rubik">./Fonts/Rubik.ttf#Rubik</FontFamily>
+            <FontFamily x:Key="Rubik-Italic">./Fonts/Rubik-Italic.ttf#Rubik-Italic</FontFamily>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/QuickAccessButtonTheme.xaml" />
+                <ResourceDictionary Source="Themes/MenuBarButtonTheme.xaml" />
+                <ResourceDictionary Source="Themes/WindowControlButtonTheme.xaml" />
+                <ResourceDictionary Source="Themes/StartWindowButtonTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

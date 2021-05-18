@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BDB</name>
+    </assembly>
+    <members>
+        <member name="M:BDB.LZW.DecompresByPath(System.String)">
+            <summary>
+            Разжатие данных
+            </summary>
+        </member>
+        <member name="M:BDB.LZW.CompresByPath(System.String)">
+            <summary>
+            Сжатие данных
+            </summary>
+        </member>
+        <member name="M:BDB.LZW.FillDict(System.Collections.ArrayList@)">
+            <summary>
+            Заполнение словаря необходимыми для сжатия символами
+            </summary>
+            <param name="dict">Словарь для заполнения</param>
+        </member>
+        <member name="M:BDB.LZW.ReadNextSection(System.Collections.ArrayList@,System.String@,System.IO.BinaryReader@)">
+            <summary>
+            Считывает следующую секцию данных
+            </summary>
+            <param name="dict">Словарь символов</param>
+            <param name="output">Строка для выходных данных</param>
+            <param name="reader">Поток данных для чтения</param>
+            <returns>Считанная секция ввиде символа</returns>
+        </member>
+        <member name="T:BDB.Table">
+            <summary>
+            Класс для управления таблицами
+            </summary>
+        </member>
+        <member name="T:BDB.Table.Row">
+            <summary>
+            Подкласс для рядов в таблице
+            </summary>
+        </member>
+        <member name="P:BDB.Table.Row.Cols">
+            <summary>
+            Содержимое строки, столбцы
+            </summary>
+        </member>
+        <member name="M:BDB.Table.Row.#ctor">
+            <summary>
+            Пустой конструктор необходим для сериализации
+            </summary>
+        </member>
+        <member name="M:BDB.Table.Row.#ctor(System.String[])">
+            <summary>
+            Конструктор для инициализации объекта
+            </summary>
+            <param name="data">Данные для внесения в объект</param>
+        </member>
+        <member name="M:BDB.Table.Row.ChangeRow(System.String[])">
+            <summary>
+            Заменяет значения ряда, на новые
+            </summary>
+            <param name="data">Массив значений для замены</param>
+        </member>
+        <member name="T:BDB.Table.Relation">
+            <summary>
+            Класс организации связей
+            </summary>
+        </member>
+        <member name="P:BDB.Table.Relation.ConnectedTable">
+            <summary>
+            Объект свзяанной таблицы
+            </summary>
+        </member>
+        <member name="P:BDB.Table.AuthorName">
+            <summary>
+            Хранит имя пользователя создавшего таблицу, по-умолчанию имя пользователя Windows. Может быть изменено.
+            </summary>
+        </member>
+        <member name="P:BDB.Table.Relations">
+            <summary>
+            Свойство для хранения связей
+            </summary>
+        </member>
+        <member name="M:BDB.Table.AddRelation(BDB.Table@)">
+            <summary>
+            Метод добавленяи свзи с таблицей
+            </summary>
+            <param name="tableToAdd">Таблица для связывания</param>
+        </member>
+        <member name="M:BDB.Table.DeleteRelation(BDB.Table@)">
+            <summary>
+            Метод для удаления связи
+            </summary>
+            <param name="tableToDelete">Таблица связь с которой нужно удалить</param>
+        </member>
+        <member name="M:BDB.Table.DeleteRow(System.Int32)">
+            <summary>
+            Удаление ряда
+            </summary>
+            <param name="id">ID ряда для удаления</param>
+        </member>
+        <member name="P:BDB.Table.Name">
+            <summary>
+            Свойство названия таблицы
+            </summary>
+        </member>
+        <member name="P:BDB.Table.Rows">
+            <summary>
+            Свойство для хранения рядов, 0 - заголовок
+            </summary>
+        </member>
+        <member name="P:BDB.Table.Ids">
+            <summary>
+            Свойство для хранения ключей записи и их позиции
+            </summary>
+        </member>
+        <member name="P:BDB.Table.Path">
+            <summary>
+            Свойство для хранения расположения файла, относительный путь, содержит название таблицы и расширение
+            </summary>
+        </member>
+        <member name="M:BDB.Table.#ctor">
+            <summary>
+            Конструктор для создания стандартного файла
+            </summary>
+        </member>
+        <member name="M:BDB.Table.#ctor(System.String)">
+            <summary>
+            Конструктор для создания файла в конкретном месте
+            </summary>
+            <param name="FilePath">Путь к файлу\\название.расширение</param>
+        </member>
+        <member name="M:BDB.Table.GenerateNewFile">
+            <summary>
+            Функция генерации стандартного файла
+            </summary>
+        </member>
+        <member name="M:BDB.Table.MakeForConstruct">
+            <summary>
+            Создание файла, и свойств класса
+            </summary>
+        </member>
+        <member name="M:BDB.Table.SetColNames(System.String[])">
+            <summary>
+            Устанавливает названия колонок, id всегда первая, при наличии id в списке пропускает
+            </summary>
+            <param name="ColNames">Массив названий для колонок</param>
+        </member>
+        <member name="M:BDB.Table.AddRow(System.String[])">
+            <summary>
+            Добавление нового ряда
+            </summary>
+            <param name="RowData">Поля по порядку, id устанавливается сам</param>
+        </member>
+        <member name="M:BDB.Table.SaveChanges">
+            <summary>
+            Сохранение данных в файле
+            </summary>
+        </member>
+        <member name="M:BDB.Table.LoadTableData(System.String)">
+            <summary>
+            Загрузка данных из файла
+            </summary>
+            <param name="FilePath">Путь к файлу\\название.расширение</param>
+        </member>
+        <member name="M:BDB.Table.DeleteTable">
+            <summary>
+            Удаление файла текущей таблицы
+            </summary>
+        </member>
+        <member name="M:BDB.Table.GetRowByID(System.Int32)">
+            <summary>
+            Получает ряд по его id
+            </summary>
+            <param name="id">id для поиска</param>
+            <returns>возвращает объект Row, либо null</returns>
+        </member>
+        <member name="T:BDB.DataBase">
+            <summary>
+            Класс для управления базой данных
+            </summary>
+        </member>
+        <member name="T:BDB.DataBase.IncorrectPasswordException">
+            <summary>
+            Класс исключения, при несовпадающем пароле
+            </summary>
+        </member>
+        <member name="F:BDB.DataBase.Path">
+            <summary>
+            Поле для хранения пути к файлу
+            </summary>
+        </member>
+        <member name="M:BDB.DataBase.MakeBaseFile(System.String)">
+            <summary>
+            Собирает все таблицы в папке назначения в один файл!
+            </summary>
+            <param name="path">путь\\названиефайла.расширение</param>
+        </member>
+        <member name="M:BDB.DataBase.DisassembleBaseFile">
+            <summary>
+            Разбивает базу данных на таблицы
+            </summary>
+        </member>
+        <member name="M:BDB.DataBase.CryptData(System.String)">
+            <summary>
+            Шифрование данных, использует path
+            </summary>
+            <param name="Password">Пароль для шифрования</param>
+        </member>
+        <member name="M:BDB.DataBase.DeCryptData(System.String)">
+            <summary>
+            Расшифрование данных, использует path
+            </summary>
+            <param name="Password">Пароль для расшифрования</param>
+            <exception cref="T:BDB.DataBase.IncorrectPasswordException">Введён не правильный пароль</exception>
+        </member>
+        <member name="M:BDB.DataBase.CompresByGlobalPath">
+            <summary>
+            Сжатие по пути файла базы
+            </summary>
+        </member>
+        <member name="M:BDB.DataBase.DecompresByGlobalPath">
+            <summary>
+            Разжатие по пути файла базы
+            </summary>
+        </member>
+        <member name="T:BDB.RC5">
+            <summary>
+            Класс для шифрования данных
+            </summary>
+        </member>
+        <member name="F:BDB.RC5.HalfBlockSize_W">
+            <summary>
+            Размер половины блока
+            </summary>
+        </member>
+        <member name="F:BDB.RC5.Rounds_R">
+            <summary>
+            Количество итераций
+            </summary>
+        </member>
+        <member name="F:BDB.RC5.GoldenRatio_F">
+            <summary>
+            Константа золотого сечения
+            </summary>
+        </member>
+        <member name="F:BDB.RC5.P">
+            <summary>
+            Псевдо случайная величина
+            </summary>
+        </member>
+        <member name="F:BDB.RC5.Q">
+            <summary>
+            Псевдо случайная величина
+            </summary>
+        </member>
+        <member name="M:BDB.RC5.OddRound(System.Double)">
+            <summary>
+            Возвращает ближайшее нечётное число
+            </summary>
+            <param name="num">Число для округления</param>
+            <returns>Возвращает округлённое число</returns>
+        </member>
+        <member name="M:BDB.RC5.ShiftCycleLeft(System.UInt64,System.Int32)">
+            <summary>
+            Циклический сдвиг влево
+            </summary>
+            <param name="arg">Число для сдвига</param>
+            <param name="n">Размер сдвига</param>
+            <returns>arg сдвинутое циклически</returns>
+        </member>
+        <member name="M:BDB.RC5.ShiftCycleRigth(System.UInt64,System.Int32)">
+            <summary>
+            Циклический сдвиг вправо
+            </summary>
+            <param name="arg">Число для сдвига</param>
+            <param name="n">Размер сдвига</param>
+            <returns>arg сдвинутое циклически</returns>
+        </member>
+        <member name="M:BDB.RC5.CryptData(System.String,System.UInt64@,System.UInt64@)">
+            <summary>
+            Выполняет шифрование данных
+            </summary>
+            <param name="Password">Пароль для шифрования</param>
+            <param name="A">Первый блок данных</param>
+            <param name="B">Второй блок данных</param>
+        </member>
+        <member name="M:BDB.RC5.DeCryptData(System.String,System.UInt64@,System.UInt64@)">
+            <summary>
+            Выполняет дешифрование данных
+            </summary>
+            <param name="Password">Пароль для дешифрования</param>
+            <param name="A">Первый блок данных</param>
+            <param name="B">Второй блок данных</param>
+        </member>
+        <member name="M:BDB.RC5.RC5Prepare(System.String@,System.UInt64[]@)">
+            <summary>
+            Выполняет необходимые подготовки
+            </summary>
+            <param name="Password">Пароль</param>
+            <param name="AdvancedKeys_S">Массив расшириных ключей</param>
+        </member>
+    </members>
+</doc>

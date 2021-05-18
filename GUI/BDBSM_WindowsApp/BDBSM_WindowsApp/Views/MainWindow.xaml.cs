@@ -1,4 +1,8 @@
-﻿using System.Windows;
+﻿using BDB;
+using Microsoft.Win32;
+using System.Collections.Generic;
+using System.IO;
+using System.Windows;
 using System.Windows.Input;
 
 namespace BDBSM_WindowsApp.Views
@@ -8,10 +12,18 @@ namespace BDBSM_WindowsApp.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        public string a { get; set; }
-        public MainWindow()
+        private List<Table> _tables = new List<Table>();
+
+        public MainWindow(string path)
         {
             InitializeComponent();
+
+            foreach (string file in Directory.GetFiles(path, "*.bdbt"))
+            {
+                Table tab = new Table();
+                tab.LoadTableData(file);
+                _tables.Add(tab);
+            }
         }
 
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
@@ -24,10 +36,12 @@ namespace BDBSM_WindowsApp.Views
             if (WindowState == WindowState.Normal)
             {
                 WindowState = WindowState.Maximized;
+                ButtonExpand.Content = "❐";
             }
             else
             {
                 WindowState = WindowState.Normal;
+                ButtonExpand.Content = "▢";
             }
         }
 
@@ -68,6 +82,37 @@ namespace BDBSM_WindowsApp.Views
 
                 DragMove();
             }
+        }
+
+        private void Button_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Cursor = Cursors.Hand;
+        }
+
+        private void Button_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Cursor = Cursors.Arrow;
+        }
+
+        private void ButtonSave_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            // Задает стандартное расширение файлу.
+            saveFileDialog.DefaultExt = "*.bdb";
+
+            // В окне сохранения задает тип файла.
+            saveFileDialog.Filter = "Базы данных Biba Database |*.bdb";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                DataBase.MakeBaseFile(saveFileDialog.FileName);
+            }
+        }
+
+        private void ButtonCreateTable_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

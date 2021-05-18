@@ -7,10 +7,11 @@
         mc:Ignorable="d"
         Title="BDBSM Studio" Height="450" Width="800"
         WindowStyle="None"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="35" />
             <RowDefinition />
         </Grid.RowDefinitions>
@@ -19,28 +20,29 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <Grid x:Name="QuickAccessBar" Background="#14274e" Grid.ColumnSpan="2"
+        <Grid x:Name="QuickAccessBar" Grid.Row="0" Grid.ColumnSpan="2" 
+              Background="#14274e"
               MouseDown="QuickAccessBar_MouseDown"
               MouseUp="QuickAccessBar_MouseUp">
 
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
                 <ColumnDefinition />
                 <ColumnDefinition />
                 <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="25"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
             <TextBlock Text="name.bdb" 
                        Foreground="White"
-                       Grid.Column="4"
+                       Grid.Column="6"
                        
                        FontSize="20"
                        FontFamily="/Fonts/#Rubik"
@@ -50,25 +52,79 @@
                        FontWeight="Light"
                        />
 
-            <Button  x:Name="ButtonHelp" Click="ButtonHelp_Click">
-                <Grid.Column>8</Grid.Column>
+            <Button  x:Name="ButtonSave" Click="ButtonSave_Click"
+                     Style="{StaticResource QuickAccessBarButtonTheme}"
+                     Grid.Column="2">
+                <Button.Content>
+                    <Image RenderOptions.BitmapScalingMode="HighQuality"
+                        Source="/Images/Icons/SaveDB.png" Height="20"/>
+                </Button.Content>
             </Button>
 
-            <Button  x:Name="ButtonRollUp" Click="ButtonRollUp_Click">
-                <Grid.Column>9</Grid.Column>
+            <Button  x:Name="ButtonUndo"
+                     Style="{StaticResource QuickAccessBarButtonTheme}"
+                     Grid.Column="3">
+                <Button.Content>
+                    ↩
+                </Button.Content>
             </Button>
 
-            <Button  x:Name="ButtonExpand" Click="ButtonExpand_Click">
-                <Grid.Column>10</Grid.Column>
+            <Button  x:Name="ButtonReturn" 
+                     Style="{StaticResource QuickAccessBarButtonTheme}"
+                     Grid.Column="4">
+                <Button.Content>
+                    ↪
+                </Button.Content>
             </Button>
 
-            <Button x:Name="ButtonClose" Click="ButtonClose_Click">
-                <Grid.Column>11</Grid.Column>
+            <Button  x:Name="ButtonHelp" Click="ButtonHelp_Click" 
+                     Style="{StaticResource WindowControlButtonTheme}"
+                     Grid.Column="8"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     FontSize="14">
+                <Button.Content>
+                    ?
+                </Button.Content>
+            </Button>
+
+            <Button  x:Name="ButtonRollUp" Click="ButtonRollUp_Click"
+                     Style="{StaticResource WindowControlButtonTheme}"
+                     Grid.Column="9"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     FontSize="14">
+                <Button.Content>
+                    –
+                </Button.Content>
+            </Button>
+
+            <Button  x:Name="ButtonExpand" Click="ButtonExpand_Click"
+                     Style="{StaticResource WindowControlButtonTheme}"
+                     Grid.Column="10"
+                     VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center"
+                     FontSize="14">
+                <Button.Content>
+                    ▢
+                </Button.Content>
+            </Button>
+
+            <Button x:Name="ButtonClose" Click="ButtonClose_Click"
+                    Style="{StaticResource WindowControlButtonTheme}"
+                    Grid.Column="11"
+                    VerticalContentAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    FontSize="14">
+                <Button.Content>
+                    ×
+                </Button.Content>
             </Button>
         </Grid>
-        <Grid x:Name="MenuBar" Background="#394867" Grid.Row="1" Grid.ColumnSpan="2">
+        <Grid x:Name="MenuBar" Grid.Row="1" Background="#394867"  Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="13.5"/>
+                <ColumnDefinition Width="86.5"/>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
@@ -76,41 +132,65 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="80"/>
-                <ColumnDefinition Width="35"/>
+                <ColumnDefinition Width="19.5"/>
+                <ColumnDefinition Width="15.5"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="ButtonFile">
-                <Grid.Column>0</Grid.Column>
-                <Button.Content>File</Button.Content>
-            </Button>
-            <Button x:Name="ButtonCreate">
-                <Grid.Column>1</Grid.Column>
-                <Button.Content>Create</Button.Content>
-            </Button>
-            <TextBlock x:Name="TextBlockAccount" 
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center">
-                <TextBlock.Text>Sign In</TextBlock.Text>
-                <Grid.Column>7</Grid.Column>
-            </TextBlock>
-            <Image Width="35" HorizontalAlignment="Right">
-                <Grid.Column>8</Grid.Column>
-            </Image>
+
+            <Button x:Name="ButtonFile"
+                    Grid.Column="0"
+                    Content="Файл" Style="{StaticResource MenuBarTheme}" Grid.ColumnSpan="2"/>
+
+            <Button x:Name="ButtonCreateTable" Click="ButtonCreateTable_Click"
+                    Grid.Column="2"
+                    Button.Content="Создать таблицу" Style="{StaticResource MenuBarTheme}"/>
+
+            <Image Width="35" HorizontalAlignment="Right"
+                    Grid.Column="9" Grid.ColumnSpan="2" />
         </Grid>
+
         <Grid x:Name="NavigationArea" Grid.Row="2" Background="#9ba4b4">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="25"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Database Name"
+
+            <TextBlock Grid.Row="0" Text="DatabaseName"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center" Margin="10" Height="20" Width="330" />
 
             <TextBox Grid.Row="1" Text="Search..." Height="25" TextAlignment="Left"
                      VerticalAlignment="Bottom" Margin="1,0,0,0"/>
-            <TreeView Margin="1,0,0,0" Grid.Row="2" />
+            <TreeView x:Name="TreeViewTables" Margin="1,0,0,0" Grid.Row="2">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding _tables}">
+                        
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+                <TreeView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem>
+                            <MenuItem.Header>
+                                Создать таблицу
+                            </MenuItem.Header>
+                        </MenuItem>
+                        <MenuItem>
+                            <MenuItem.Header>
+                                Добавить таблицу из файла
+                            </MenuItem.Header>
+                        </MenuItem>
+                    </ContextMenu>
+                </TreeView.ContextMenu>
+            </TreeView>
         </Grid>
         <Grid x:Name="Workspace" Grid.Row="2" Grid.Column="1" 
-              Margin="0,4" Background="#f1f6f9"/>
+              Margin="0" Background="#f1f6f9">
+            <TabControl>
+                <TabItem Header="TableName">
+
+                </TabItem>
+            </TabControl>
+        </Grid>
+
     </Grid>
 </Window>
