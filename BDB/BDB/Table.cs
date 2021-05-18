@@ -2,7 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Text.Json;
-
+//TODO: Журнализация!
 namespace BDB
 {
     /// <summary>
@@ -226,8 +226,15 @@ namespace BDB
             {
                 WriteIndented = true
             };
-            string json = JsonSerializer.Serialize(this, jsonSerializer);
-            File.AppendAllText(Path, json);
+            try
+            {
+                string json = JsonSerializer.Serialize(this, jsonSerializer);
+                File.AppendAllText(Path, json);
+            }
+            catch
+            {
+                File.Create(Path);
+            }
         }
         /// <summary>
         /// Загрузка данных из файла

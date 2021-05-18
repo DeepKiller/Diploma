@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 namespace BDB
 {
-    class LZW
+    static class LZW
     {
         /// <summary>
         /// Разжатие данных
