@@ -13,8 +13,8 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAABAAAAAAAEBAIAAAAAAAAAAAQAEAAAAgAAAAAAAAA=</HashCode>
-      <FileName>FileManager.cs</FileName>
+      <HashCode>AEABAAAAAAAEBAIAAAAAAAAAAAQAEAAAAgAAAAAAAAA=</HashCode>
+      <FileName>DataBase.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="BDB.LZW">

@@ -24,15 +24,18 @@ namespace BDB
         /// <summary>
         /// Поле для хранения пути к файлу
         /// </summary>
-        static string Path = "";
+        static public string Path = "";
         /// <summary>
-        /// Собирает все таблицы в папке назначения в один файл
+        /// Собирает все таблицы в папке назначения в один файл!
         /// </summary>
         /// <param name="path">путь\\названиефайла.расширение</param>
         static public void MakeBaseFile(string path)
         {
             ArrayList tables = new ArrayList();
-            foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.bdbt"))
+            string[] split = path.Split('\\');
+            string filepath = path;
+            filepath = split.Length != 1 ? filepath.Remove(filepath.Length - split[split.Length - 1].Length, split[split.Length - 1].Length) : Directory.GetCurrentDirectory();
+            foreach (string file in Directory.GetFiles(filepath, "*.bdbt"))
             {
                 Table tab = new Table();
                 tab.LoadTableData(file);
@@ -44,10 +47,17 @@ namespace BDB
             {
                 WriteIndented = true
             };
-            string json = JsonSerializer.Serialize(tables, jsonSerializer);
-            File.AppendAllText(path, json);
-            foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.bdbt"))
-                File.Delete(file);
+            try
+            {
+                string json = JsonSerializer.Serialize(tables, jsonSerializer);
+                File.AppendAllText(path, json);
+                foreach (string file in Directory.GetFiles(filepath, "*.bdbt"))
+                    File.Delete(file);
+            }
+            catch
+            {
+                File.AppendAllText(path, "[]");
+            }
             Path = path;
         }
         /// <summary>
@@ -55,14 +65,21 @@ namespace BDB
         /// </summary>
         static public void DisassembleBaseFile()
         {
+            string[] split = Path.Split('\\');
+            string filepath = Path;
+            filepath = split.Length != 1 ? filepath.Remove(filepath.Length - split[split.Length - 1].Length, split[split.Length - 1].Length) : Directory.GetCurrentDirectory();
             string json = File.ReadAllText(Path);
             Table[] tables = new Table[0];
-            tables = (Table[])JsonSerializer.Deserialize(json, tables.GetType());
-            foreach (string file in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.bdbt"))
-                File.Delete(file);
-            foreach (Table table in tables)
-                table.SaveChanges();
-            File.Delete(Path);
+            try
+            {
+                tables = (Table[])JsonSerializer.Deserialize(json, tables.GetType());
+                foreach (string file in Directory.GetFiles(filepath, "*.bdbt"))
+                    File.Delete(file);
+                foreach (Table table in tables)
+                    table.SaveChanges();
+                File.Delete(Path);
+            }
+            catch { }
         }
         /// <summary>
         /// Шифрование данных, использует path
@@ -152,6 +169,24 @@ namespace BDB
         static public void DecompresByGlobalPath()
         {
             LZW.DecompresByPath(Path);
+        }
+        /// <summary>
+        /// Метод возвращает массив таблиц из директории в которой находился файл базы данных
+        /// </summary>
+        /// <returns>Массив таблиц</returns>
+        static public ArrayList GetTables()
+        {
+            ArrayList tables = new ArrayList();
+            string[] split = Path.Split('\\');
+            string filepath = Path;
+            filepath = split.Length != 1 ? filepath.Remove(filepath.Length - split[split.Length - 1].Length, split[split.Length - 1].Length) : Directory.GetCurrentDirectory();
+            foreach (string file in Directory.GetFiles(filepath, "*.bdbt"))
+            {
+                Table tab = new Table();
+                tab.LoadTableData(file);
+                tables.Add(tab);
+            }
+            return tables;
         }
     }
 }

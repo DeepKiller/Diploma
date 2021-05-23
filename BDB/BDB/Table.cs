@@ -162,7 +162,7 @@ namespace BDB
         /// <summary>
         /// Функция генерации стандартного файла
         /// </summary>
-        private void GenerateNewFile()
+        private void GenerateNewFile() 
         {
             string[] Files = Directory.GetFiles(Directory.GetCurrentDirectory(), "Table*.bdbt");
             Name = "Table" + (Files.Length + 1);
@@ -244,6 +244,7 @@ namespace BDB
         {
             string ReadedJson = File.ReadAllText(FilePath);
             Table temp = (Table)JsonSerializer.Deserialize(ReadedJson, GetType());
+            AuthorName = temp.AuthorName;
             Name = temp.Name;
             Path = temp.Path;
             for (int i = 0; i < temp.Rows.Count; i++)

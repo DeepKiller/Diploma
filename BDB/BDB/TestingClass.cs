@@ -21,6 +21,7 @@
             test.AddRow(Data);
             test.AddRow(Data);
             test.AddRow(Data);
+            test.AuthorName = "Govnok0d";
             test.SaveChanges();
             Table test1 = new Table("test1.bdbt");
             test1.SetColNames(Cols);

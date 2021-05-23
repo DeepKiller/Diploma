@@ -67,7 +67,7 @@
     <Compile Include="LZW.cs" />
     <Compile Include="Table.cs" />
     <Compile Include="TestingClass.cs" />
-    <Compile Include="FileManager.cs" />
+    <Compile Include="DataBase.cs" />
     <Compile Include="RC5.cs" />
   </ItemGroup>
   <ItemGroup>
