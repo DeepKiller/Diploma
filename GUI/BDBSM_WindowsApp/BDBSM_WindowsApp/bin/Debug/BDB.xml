@@ -34,6 +34,16 @@
             Класс для управления таблицами
             </summary>
         </member>
+        <member name="T:BDB.Table.TooManyArgumentsException">
+            <summary>
+            Исключение слишком большого количества аргументов
+            </summary>
+        </member>
+        <member name="M:BDB.Table.TooManyArgumentsException.#ctor">
+            <summary>
+            Исключение слишком большого количества аргументов
+            </summary>
+        </member>
         <member name="T:BDB.Table.Row">
             <summary>
             Подкласс для рядов в таблице
@@ -81,17 +91,19 @@
             Свойство для хранения связей
             </summary>
         </member>
-        <member name="M:BDB.Table.AddRelation(BDB.Table@)">
+        <member name="M:BDB.Table.AddRelation(BDB.Table@,System.String)">
             <summary>
             Метод добавленяи свзи с таблицей
             </summary>
             <param name="tableToAdd">Таблица для связывания</param>
+            <param name="colToAdd">Столбец для связывания</param>
         </member>
-        <member name="M:BDB.Table.DeleteRelation(BDB.Table@)">
+        <member name="M:BDB.Table.DeleteRelation(BDB.Table@,System.String)">
             <summary>
             Метод для удаления связи
             </summary>
             <param name="tableToDelete">Таблица связь с которой нужно удалить</param>
+            <param name="colToDelete"> Столбец для удаления связи</param>
         </member>
         <member name="M:BDB.Table.DeleteRow(System.Int32)">
             <summary>
@@ -181,6 +193,11 @@
             </summary>
         </member>
         <member name="T:BDB.DataBase.IncorrectPasswordException">
+            <summary>
+            Класс исключения, при несовпадающем пароле
+            </summary>
+        </member>
+        <member name="M:BDB.DataBase.IncorrectPasswordException.#ctor">
             <summary>
             Класс исключения, при несовпадающем пароле
             </summary>

@@ -7,7 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using static BDB.Table;
@@ -160,6 +159,7 @@ namespace BDBSM_WindowsApp.ViewModels
         public bool CanSetCurrentTableRows(object p) => true;
         public void OnSetCurrentTableRows(object p)
         {
+
         }
 
         #endregion
@@ -274,66 +274,6 @@ namespace BDBSM_WindowsApp.ViewModels
         }
         #endregion
 
-        #region OpenTableCommand
-        public ICommand OpenTableCommand { get; }
-
-        private void OnOpenTableCommand(object p)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            #region Настройки диалогового окна.
-
-            openFileDialog.Title = "Путь для новой таблицы";
-            openFileDialog.Filter = "Biba Database table(*.bdbt)|*.bdbt|All files (*.*)|*.*";
-
-            #endregion
-
-            if (openFileDialog.ShowDialog() == false)
-                return;
-
-            var current = p as MainWindowViewModel;
-
-            if (current == null)
-                return;
-
-            var table = new Table(openFileDialog.FileName);
-            var tables = DataBase.GetTables();
-
-            tables.Add(table);
-
-            current.Tables = CollectionViewSource.GetDefaultView(tables);
-        }
-        #endregion
-
-        #region SaveTableHowCommand
-        public ICommand SaveTableHowCommand { get; }
-
-        private void OnSaveTableHowCommand(object p)
-        {
-            var saveFileDialog = new SaveFileDialog();
-
-            #region Настройки диалогового окна.
-
-            saveFileDialog.Title = "Путь для новой таблицы Базы данных";
-            saveFileDialog.Filter = "Biba Database table(*.bdbt)|*.bdbt|All files (*.*)|*.*";
-            saveFileDialog.FileName = SelectedTable.Name;
-            saveFileDialog.InitialDirectory = SelectedTable.Path;
-
-            #endregion
-
-            if (saveFileDialog.ShowDialog() == false)
-                return;
-
-            SelectedTable.Path = System.IO.Path.GetDirectoryName(saveFileDialog.FileName);
-            SelectedTable.Name = saveFileDialog.SafeFileName;
-        }
-        #endregion
-
-        #region BackCommand
-        public ICommand BackCommand { get; }
-        
-        private void OnBackCommand(object p) => TryGoBack();
-        #endregion
         #endregion
 
         public MainWindowViewModel()
@@ -346,11 +286,8 @@ namespace BDBSM_WindowsApp.ViewModels
             OpenDatabaseCommand = new ActionCommand(OnOpenDatabaseCommand, null);
             CreateNewDatabaseCommand = new ActionCommand(OnCreateNewDatabaseCommandExecuted, CanCreateNewDatabaseCommand);
             
-            SaveTableHowCommand = new ActionCommand(OnSaveTableHowCommand, null);
             CreateNewTableCommand = new ActionCommand(OnCreateNewTableCommandExecute, CanCreateNewTableCommand);
-            OpenTableCommand = new ActionCommand(OnOpenTableCommand, null);
 
-            BackCommand = new ActionCommand(OnBackCommand, null);
             SetCurrentTableRowsCommand = new ActionCommand(OnSetCurrentTableRows, CanSetCurrentTableRows);
         }
 
@@ -389,17 +326,6 @@ namespace BDBSM_WindowsApp.ViewModels
             // Если countLetter <= 0, то испльзуется путь к документам
             // Иначе из полного имени файла удаляется его имя.
             return countLetter <= 0 ? path : path.Remove(countLetter);
-        }
-        public static bool TryGoBack()
-        {
-            Frame rootFrame = Application.Current.MainWindow.Content as Frame;
-
-            if (rootFrame.CanGoBack)
-            {
-                rootFrame.GoBack();
-                return true;
-            }
-            return false;
         }
     }
 }

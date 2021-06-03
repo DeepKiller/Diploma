@@ -113,8 +113,8 @@
                 <RowDefinition Height="180"/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <!--Source="/Images/Icons/Logo.png"-->
-            <Image  
+
+            <Image Source="/Images/Icons/Logo.png" 
                    Height="140"
                    RenderOptions.BitmapScalingMode="HighQuality"  
                    Grid.RowSpan="2" />

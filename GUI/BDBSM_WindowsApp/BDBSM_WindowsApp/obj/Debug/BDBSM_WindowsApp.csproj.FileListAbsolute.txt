@@ -38,3 +38,4 @@ D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\MaterialDes
 D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\MaterialDesignColors.pdb
 D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\MaterialDesignThemes.Wpf.pdb
 D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\MaterialDesignThemes.Wpf.xml
+D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\BDB.dll

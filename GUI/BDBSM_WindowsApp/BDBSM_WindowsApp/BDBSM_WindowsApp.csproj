@@ -36,6 +36,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon %284%29.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BDB, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -183,6 +186,25 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Icons\CreateNewDatabase.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Icons\Icon.png" />
+    <Resource Include="Images\Icons\Logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon %281%29.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon %282%29.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon %283%29.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icon %284%29.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MaterialDesignThemes.4.1.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.4.1.0\build\MaterialDesignThemes.targets')" />
