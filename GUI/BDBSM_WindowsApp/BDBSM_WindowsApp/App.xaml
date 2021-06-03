@@ -4,16 +4,30 @@
              xmlns:local="clr-namespace:BDBSM_WindowsApp"
              StartupUri="Views/StartWindow.xaml">
     <Application.Resources>
-
         <ResourceDictionary>
             <FontFamily x:Key="Dosis">./Fonts/Dosis.ttf#Dosis</FontFamily>
             <FontFamily x:Key="Rubik">./Fonts/Rubik.ttf#Rubik</FontFamily>
             <FontFamily x:Key="Rubik-Italic">./Fonts/Rubik-Italic.ttf#Rubik-Italic</FontFamily>
+            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#394867"/>
+            <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#14274e"/>
+            <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush" Color="#FFFFFF"/>
+            <SolidColorBrush x:Key="PrimaryHueDarkBrush" Color="#363333"/>
+            <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush" Color="#e16428"/>
+            <SolidColorBrush x:Key="SecondaryDarkBrush" Color="#272121" />
+            <SolidColorBrush x:Key="SecondaryDarkForeground" Color="#f6e9e9" />
+            <!--ACCENT-->
+            <SolidColorBrush x:Key="PrimaryHueAccentBrush" Color="#e16428"/>
+            <SolidColorBrush x:Key="PrimaryHueAccentForegroundBrush" Color="#FFFFFF"/>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Themes/QuickAccessButtonTheme.xaml" />
-                <ResourceDictionary Source="Themes/MenuBarButtonTheme.xaml" />
-                <ResourceDictionary Source="Themes/WindowControlButtonTheme.xaml" />
-                <ResourceDictionary Source="Themes/StartWindowButtonTheme.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Lime.xaml" />
+                <ResourceDictionary Source="Themes/Light/QuickAccessButtonTheme.xaml" />
+                <ResourceDictionary Source="Themes/Light/MenuBarButtonTheme.xaml" />
+                <ResourceDictionary Source="Themes/Light/WindowControlButtonTheme.xaml" />
+                <ResourceDictionary Source="Themes/Light/StartWindowButtonTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

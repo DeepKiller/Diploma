@@ -224,6 +224,12 @@
             Разжатие по пути файла базы
             </summary>
         </member>
+        <member name="M:BDB.DataBase.GetTables">
+            <summary>
+            Метод возвращает массив таблиц из директории в которой находился файл базы данных
+            </summary>
+            <returns>Массив таблиц</returns>
+        </member>
         <member name="T:BDB.RC5">
             <summary>
             Класс для шифрования данных

@@ -3,25 +3,59 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BDBSM_WindowsApp.Views"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:viewmodel="clr-namespace:BDBSM_WindowsApp.ViewModels"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="BDBSM Studio" Height="450" Width="800"
         WindowStyle="None"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        BorderThickness="2"
+        Background="Transparent"
+        AllowsTransparency="True">
+
+    <Window.DataContext>
+        <viewmodel:StartWindowViewModel/>
+    </Window.DataContext>
+    <Window.Effect>
+        <DropShadowEffect 
+            BlurRadius="20" 
+            RenderingBias="Quality" 
+            ShadowDepth="2" 
+            Color="#14274e"
+            Opacity="0.7"/>
+    </Window.Effect>
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding HelpCommand}" 
+                    Key="F1"/>
+        <KeyBinding Command="{Binding OpenCreateFileDialogCommand}" 
+                    Key="N"
+                    Modifiers="Ctrl"/>
+        <KeyBinding Command="{Binding OpenDatabaseCommand}" 
+                    Key="O"
+                    Modifiers="Ctrl"/>
+    </Window.InputBindings>
     <Grid>
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseDown">
+                <i:InvokeCommandAction 
+                    Command="{Binding DragMoveWindowCommand}" />
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition />
         </Grid.RowDefinitions>
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Grid x:Name="QuickAccessBar" Grid.Row="0"  Grid.ColumnSpan="2"
-              Background="#14274e"
-              MouseDown="QuickAccessBar_MouseDown"
-              MouseUp="QuickAccessBar_MouseUp">
+
+        <Grid Grid.Row="0"  
+              Grid.ColumnSpan="2"
+              Background="#14274e">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="30"/>
@@ -38,54 +72,39 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-
-            <Button  x:Name="ButtonHelp" Click="ButtonHelp_Click" 
-                     Style="{StaticResource WindowControlButtonTheme}"
+            <Button  Style="{StaticResource WindowControlButtonTheme}"
+                     Command="{Binding HelpCommand}"
                      Grid.Column="8"
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
-                     FontSize="14">
-                <Button.Content>
-                    ?
-                </Button.Content>
-            </Button>
+                     FontSize="14" 
+                     Content="?"/>
 
-            <Button  x:Name="ButtonRollUp" Click="ButtonRollUp_Click"
+            <Button  Command="{Binding RollUpWindowCommand}"
                      Style="{StaticResource WindowControlButtonTheme}"
                      Grid.Column="9"
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
-                     FontSize="14">
-                <Button.Content>
-                    –
-                </Button.Content>
-            </Button>
+                     FontSize="14"
+                     Content="–"/>
 
-            <Button  x:Name="ButtonExpand" Click="ButtonExpand_Click"
+            <Button  Command="{Binding ExpandWindowCommand}"
                      Style="{StaticResource WindowControlButtonTheme}"
                      Grid.Column="10"
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
-                     FontSize="14">
-                <Button.Content>
-                    ▢
-                </Button.Content>
-            </Button>
+                     FontSize="14"/>
 
-            <Button x:Name="ButtonClose" Click="ButtonClose_Click"
+            <Button Command="{Binding CloseWindowCommand}"
                     Style="{StaticResource WindowControlButtonTheme}"
                     Grid.Column="11"
                     VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Center"
-                    FontSize="14">
-                <Button.Content>
-                    ×
-                </Button.Content>
-            </Button>
+                    FontSize="14"
+                    Content="×"/>
         </Grid>
 
-        <Grid x:Name="SideBar" 
-              Grid.Column="0" 
+        <Grid Grid.Column="0" 
               Grid.RowSpan="2" 
               Background="#394867" 
               Margin="0,1,0,0">
@@ -94,56 +113,83 @@
                 <RowDefinition Height="180"/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
+            <!--Source="/Images/Icons/Logo.png"-->
+            <Image  
+                   Height="140"
+                   RenderOptions.BitmapScalingMode="HighQuality"  
+                   Grid.RowSpan="2" />
 
-            <Image Source="/Images/Icons/Logo.png" Height="140"
-                   RenderOptions.BitmapScalingMode="HighQuality"  Grid.RowSpan="2" />
-
-            <Label Grid.Row="2" Content="v1.0.0" HorizontalAlignment="Left"
+            <Label Grid.Row="2" 
+                   Content="{Binding ProductVersion}" 
+                   HorizontalAlignment="Left"
                    VerticalAlignment="Center"
                    Foreground="White" Margin="3,0,0,3"
                    FontSize="14"/>
         </Grid>
-        <Grid x:Name="MainSpace" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1">
+
+        <Grid Background="White"
+              Grid.Row="1" 
+              Grid.RowSpan="2" 
+              Grid.Column="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="105*"/>
+                <ColumnDefinition Width="358*"/>
+                <ColumnDefinition Width="37*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
-                <RowDefinition />
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="40"/>
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <Label Content="Основное" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                 Grid.Row="0"/>
+            <Label Content="Основное"
+                   HorizontalAlignment="Left" 
+                   VerticalAlignment="Center" 
+                   Grid.Row="0" Margin="0,7"/>
 
-            <Line Stroke="#14274e" StrokeThickness="2" X1="{Binding Source={x:Static SystemParameters.FullPrimaryScreenWidth}}" Y1="0" Y2="0" Grid.Row="2"/>
-            <Label Content="Шаблоны" HorizontalAlignment="Left" VerticalAlignment="Center" 
-                 Grid.Row="2"/>
+            <Line Stroke="#14274e" 
+                  StrokeThickness="2" 
+                  Y1="0" Y2="0" X1="{Binding Source=
+                {x:Static SystemParameters.FullPrimaryScreenWidth}}" 
+                  Grid.Row="2" Grid.ColumnSpan="3" />
+            
+            <Label Content="Шаблоны" 
+                   HorizontalAlignment="Left" 
+                   VerticalAlignment="Center" 
+                   Grid.Row="2" Margin="0,7"/>
 
-            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                <Button x:Name="ButtonCreateNewDB" Style="{StaticResource StartWindowButtonTheme}"
-                    Click="ButtonCreateNewDB_Click" RenderTransformOrigin="0.5,0.5">
-
+            <StackPanel Grid.Row="1" 
+                        Orientation="Horizontal" Grid.ColumnSpan="3">
+                <Button Command="{Binding OpenCreateFileDialogCommand}"
+                        Style="{StaticResource StartWindowButtonTheme}">
                     <StackPanel>
-                        <Image Source="/Images/Icons/CreateNewDB.png" 
+                        <Image Source="/Images/Icons/CreateNewDatabase.png" 
                                RenderOptions.BitmapScalingMode="HighQuality" 
-                               Height="110" RenderTransformOrigin="0.5,0.5" />
+                               Height="110" />
 
-                        <TextBlock Text="Создать новую БД" Margin="0,10,0,0"/>
+                        <TextBlock Text="Создать новую БД" 
+                                   Margin="0,10,0,0"/>
                     </StackPanel>
                 </Button>
-                <Button x:Name="ButtonOpenDB" 
-                        Style="{StaticResource StartWindowButtonTheme}"
-                    Click="ButtonOpenDB_Click">
+
+                <Button Command="{Binding OpenDatabaseCommand}"
+                        Style="{StaticResource StartWindowButtonTheme}">
+
                     <StackPanel VerticalAlignment="Bottom">
-                        <Image Source="/Images/Icons/OpenDB.png" Height="110" 
+                        <Image Source="/Images/Icons/OpenDatabase.png" 
+                               Height="110" 
                                RenderOptions.BitmapScalingMode="HighQuality" 
                                HorizontalAlignment="Center"/>
-                        <TextBlock Text="Открыть БД" Margin="0,10,0,0" 
+                        
+                        <TextBlock Text="Открыть БД" 
+                                   Margin="0,10,0,0" 
                                    VerticalAlignment="Bottom"
-                                   HorizontalAlignment="Center" TextAlignment="Center" />
+                                   HorizontalAlignment="Center" 
+                                   TextAlignment="Center" />
                     </StackPanel>
                 </Button>
             </StackPanel>
         </Grid>
     </Grid>
-
 </Window>

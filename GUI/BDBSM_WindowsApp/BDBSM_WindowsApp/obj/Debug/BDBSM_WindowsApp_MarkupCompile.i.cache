@@ -10,11 +10,11 @@ none
 false
 DEBUG;TRACE
 D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\App.xaml
-9-1429191508
+9938697373
 
-101511331183
-161392330567
-Themes\MenuBarButtonTheme.xaml;Themes\QuickAccessButtonTheme.xaml;Themes\StartWindowButtonTheme.xaml;Themes\WindowControlButtonTheme.xaml;Views\EditTable.xaml;Views\InfoDialog.xaml;Views\MainWindow.xaml;Views\CreateFileDialog.xaml;Views\StartWindow.xaml;
+17603132950
+191736300022
+Themes\Light\MenuBarButtonTheme.xaml;Themes\Light\QuickAccessButtonTheme.xaml;Themes\Light\StartWindowButtonTheme.xaml;Themes\Light\WindowControlButtonTheme.xaml;Views\EditTable.xaml;Views\InfoDialog.xaml;Views\MainWindow.xaml;Views\CreateFileDialog.xaml;Views\StartWindow.xaml;
 
 True
 

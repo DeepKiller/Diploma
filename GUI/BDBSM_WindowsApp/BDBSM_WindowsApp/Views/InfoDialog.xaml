@@ -4,19 +4,49 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BDBSM_WindowsApp.Views"
+        xmlns:viewmodel="clr-namespace:BDBSM_WindowsApp.ViewModels"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
-        Height="170" Width="300"
+        Title="InfoDialog" Height="200" Width="450"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        WindowStyle="None"
-        Background="#394867" >
-    <Grid x:Name="InfoDialogWindow" MouseDown="InfoDialogWindow_MouseDown">
+        WindowStyle="None" ResizeMode="NoResize"
+        BorderThickness="1.5"
+        AllowsTransparency="True"
+        Background="Transparent">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="MouseDown">
+            <i:InvokeCommandAction 
+                Command="{Binding DragMoveWindowCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Window.Effect>
+        <DropShadowEffect 
+            BlurRadius="20" 
+            RenderingBias="Quality" 
+            ShadowDepth="2" 
+            Color="#14274e"
+            Opacity="0.7"/>
+    </Window.Effect>
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding HelpCommand}" 
+                    Key="F1"/>
+        <KeyBinding Command="{Binding AcceptCommand}" 
+                    Key="Return"/>
+        <KeyBinding Command="{Binding CloseWindowCommand}" 
+                    Key="Esc"/>
+    </Window.InputBindings>
+    <Window.DataContext>
+        <viewmodel:InfoDialogViewModel/>
+    </Window.DataContext>
+
+    <Grid Background="#394867">
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid x:Name="QuickAccessBar"
-              Grid.Row="0" Background="#394867">
+
+        <Grid Grid.Row="0" 
+              Background="#394867">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
                 <ColumnDefinition />
@@ -32,39 +62,62 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="LabelTitle" Grid.Column="5" Grid.ColumnSpan="4"
-                   Foreground="White"/>
-            <Button x:Name="ButtonClose" Click="ButtonClose_Click"
+            <Label Content="{Binding TitleWindow}"
+                   Grid.Column="5" 
+                   Grid.ColumnSpan="4"
+                   Foreground="White"
+                   VerticalContentAlignment="Center"/>
+
+            <Button Command="{Binding CloseWindowCommand}"
                     Style="{StaticResource WindowControlButtonTheme}"
                     Grid.Column="12"
                     VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Center"
-                    FontSize="14">
-                <Button.Content>
-                    ×
-                </Button.Content>
-            </Button>
+                    FontSize="14"
+                    Content="×" />
         </Grid>
-        <TextBlock x:Name="InfoDialogMessage" 
-                   Grid.Row="1" Foreground="White"
-                   Text="Введите данные:" 
-                   Margin="74.9,33,0,0"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Top"
-                   FontSize="15"/>
-        <TextBox x:Name="TextBoxData" Grid.Row="1" HorizontalAlignment="Center"
-                 VerticalAlignment="Center" Width="150"
-                 Margin="0,0,0,15" 
-                 BorderBrush="#14274e"/>
+        <TextBlock Grid.Row="1" 
+                   Foreground="White"
+                   Text="{Binding InfoText}" 
+                   TextAlignment="Center"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,65"
+                   FontSize="14"/>
+        <TextBox Style="{DynamicResource MaterialDesignTextBox}"
+                 Text="{Binding InputText}"
+                 Grid.Row="1" 
+                 Visibility="{Binding TextBoxVisibility}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center" 
+                 Width="212"
+                 Background="WhiteSmoke"
+                 TextAlignment="Center"
+                 FontSize="14"
+                 Height="Auto"
+                 />
 
-        <StackPanel Grid.Row="1" Margin="5,5,5,5" Orientation="Horizontal"
-                    HorizontalAlignment="Right" VerticalAlignment="Bottom">
-            <Button x:Name="ButtonOK" Content="OK" Width="80" Margin="0,0,8,0"
-                    Background="White" BorderBrush="Transparent" 
-                    Click="ButtonOK_Click"/>
-            <Button x:Name="ButtonCancel"  Content="Отмена" Width="80"
-                    Background="White" BorderBrush="Transparent" 
-                    Click="ButtonCancel_Click"/>
+        <StackPanel Grid.Row="1" 
+                    Margin="0,0,5,5" 
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Bottom" 
+                    Height="auto">
+            <Button Content="{Binding FirstButtonText}" 
+                    Command="{Binding AcceptCommand}"
+                    Width="auto"
+                    FontSize="14"
+                    Margin="0,0,8,0" 
+                    Visibility="{Binding FirstButtonVisibility}"/>
+            <Button Content="{Binding SecondButtonText}" 
+                    Command="{Binding SecondAcceptCommand}"
+                    Width="auto"
+                    FontSize="14"
+                    Margin="0,0,8,0" />
+            <Button Content="{Binding ThirdButtonText}" 
+                    Command="{Binding CloseWindowCommand}"
+                    Width="auto"
+                    FontSize="14"/>
         </StackPanel>
     </Grid>
 </Window>
