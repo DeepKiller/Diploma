@@ -218,6 +218,16 @@
             Разбивает базу данных на таблицы
             </summary>
         </member>
+        <member name="F:BDB.DataBase.Pass">
+            <summary>
+            Пароль
+            </summary>
+        </member>
+        <member name="M:BDB.DataBase.CryptData">
+            <summary>
+            Шифрование данных, использует path
+            </summary>
+        </member>
         <member name="M:BDB.DataBase.CryptData(System.String)">
             <summary>
             Шифрование данных, использует path

@@ -1,0 +1,119 @@
+﻿<Window x:Class="BDBSM_WindowsApp.Views.CreateRelation"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BDBSM_WindowsApp.Views"
+        xmlns:viewmodel="clr-namespace:BDBSM_WindowsApp.ViewModels"
+        mc:Ignorable="d"
+        Title="CreateRelation" 
+        Height="300" 
+        Width="500"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent"
+        AllowsTransparency="True"
+        BorderThickness="1.5">
+    <Window.DataContext>
+        <viewmodel:CreateRelationViewModel />
+    </Window.DataContext>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="MouseDown">
+            <i:InvokeCommandAction 
+                    Command="{Binding DragMoveWindowCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    <Grid  Background="#f1f6f9">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="1"
+              Grid.Column="1"
+              Background="#394867"/>
+
+
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Center">
+            <Label Content="Выберите таблицу" />
+            <ComboBox ItemsSource="{Binding Tables}"
+                      DisplayMemberPath="Name"
+                      FontSize="14"
+                      SelectedItem="{Binding FirstSelectedTable}"
+                      HorizontalContentAlignment="Center"/>
+            <Label Content="Выберите поле таблицы" />
+            <ComboBox FontSize="14"
+                      ItemsSource="{Binding FirstTableColumns}"
+                      SelectedItem="{Binding FirstSelectedColumn}"
+                      HorizontalContentAlignment="Center"
+                      DisplayMemberPath="Data"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1"
+                    VerticalAlignment="Center">
+            <Label Content="Выберите таблицу" 
+                   Foreground="White"/>
+            <ComboBox ItemsSource="{Binding TablesWithoutSelected}"
+                      SelectedItem="{Binding SecondSelectedTable}"
+                      DisplayMemberPath="Name"
+                      Foreground="Black"
+                      FontSize="14"
+                      HorizontalContentAlignment="Center"/>
+            <Label Content="Выберите поле таблицы" 
+                   Foreground="White"/>
+            <ComboBox ItemsSource="{Binding SecondTableColumns}" 
+                      DisplayMemberPath="Data"
+                      Foreground="Black"
+                      FontSize="14"
+                      HorizontalContentAlignment="Center"/>
+        </StackPanel>
+        <Button Grid.Row="0"
+                Grid.Column="1"
+                Command="{Binding CloseWindowCommand}"
+                Style="{StaticResource WindowControlButtonTheme}"
+                VerticalContentAlignment="Center"
+                HorizontalContentAlignment="Right"
+                Width="25"
+                Height="25"
+                FontSize="14" 
+                Margin="225,0,0,0"
+                Background="Red"
+                Content="×"/>
+
+        <Label Grid.Row="0" 
+               Grid.ColumnSpan="2" 
+               Content="Создание связей таблиц"
+               Foreground="Black"
+               FontSize="13"
+               FontWeight="DemiBold"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Top"/>
+
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2" 
+                    Margin="0,0,5,5" 
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Bottom" 
+                    Height="auto">
+            <Button Content="Создать связь" 
+                    Command="{Binding CreateRelationCommand}"
+                    Width="auto"
+                    FontSize="14"
+                    Margin="0,0,8,0"/>
+
+            <Button Content="Отмена" 
+                    Command="{Binding CloseWindowCommand}"
+                    Width="auto"
+                    FontSize="14"
+                    Margin="0,0,8,0" />
+        </StackPanel>
+    </Grid>
+</Window>

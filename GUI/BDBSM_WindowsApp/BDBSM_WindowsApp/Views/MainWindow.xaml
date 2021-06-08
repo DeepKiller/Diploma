@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:viewmodel="clr-namespace:BDBSM_WindowsApp.ViewModels"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
         Title="BDBSM Studio" Height="450" Width="800"
         WindowStyle="None"
@@ -17,8 +18,6 @@
     <Window.InputBindings>
         <KeyBinding Command="{Binding HelpCommand}" 
                     Key="F1"/>
-        <KeyBinding Command="{Binding AcceptCommand}" 
-                    Key="Return"/>
         <KeyBinding Command="{Binding OpenDatabaseCommand}" 
                     Modifiers="Ctrl" Key="O"/>
         <KeyBinding Command="{Binding CreateNewDatabaseCommand}" 
@@ -67,9 +66,10 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="{Binding DatabaseName}" 
+            <TextBlock Text="{Binding DatabaseName, UpdateSourceTrigger=PropertyChanged}" 
                        Foreground="White"
-                       Grid.Column="6"
+                       Grid.Column="5"
+                       Grid.ColumnSpan="2"
                        FontSize="20"
                        FontFamily="/Fonts/#Rubik"
                        VerticalAlignment="Center"
@@ -77,9 +77,6 @@
                        TextAlignment="Center"
                        FontWeight="Light"/>
 
-            <ToggleButton Grid.Column="7"
-                          Style="{DynamicResource MaterialDesignSwitchToggleButton}"
-                          ToolTip="MaterialDesignFlatPrimaryToggleButton" />
             <Button  Style="{StaticResource WindowControlButtonTheme}"
                      Command="{Binding HelpCommand}"
                      Grid.Column="8"
@@ -137,22 +134,18 @@
                     <MenuItem Header="Создать"  Height="30"
                               Command="{Binding CreateNewDatabaseCommand}" />
                     <MenuItem Header="Сохранить"  Height="30"
-                              Command="{Binding SaveDatabaseCommand}" />
+                              Command="{Binding SaveTablesCommand}" />
                     <MenuItem Header="Сохранить как..."  Height="30"
                               Command="{Binding SaveDatabaseHowCommand}" />
                 </MenuItem>
                 <MenuItem Header="Таблицы" Height="30">
                     <MenuItem Header="Создать"  Height="30"
                               Command="{Binding CreateNewTableCommand}" />
-                    <!--<MenuItem Header="Добавить из файла"  Height="30"
-                              Command="{Binding OpenTableCommand}" />
-                    <MenuItem Header="Сохранить как..."  Height="30"
-                              Command="{Binding SaveTableHowCommand}" />-->
                 </MenuItem>
                 <MenuItem Header="Связи" Height="30">
 
                     <MenuItem Header="Создать"  Height="30"
-                              Command="{Binding CreateNewTableCommand}" />
+                              Command="{Binding CreateRelationCommand}" />
                 </MenuItem>
 
             </Menu>
@@ -176,7 +169,8 @@
                        VerticalAlignment="Center" 
                        Margin="10" 
                        Height="20" 
-                       Width="330" Grid.ColumnSpan="2" />
+                       Width="330" 
+                       Grid.ColumnSpan="2" />
 
             <TextBox Grid.Row="1" 
                      Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
@@ -187,16 +181,15 @@
                      Margin="1,0,0,0" Grid.ColumnSpan="2"/>
 
             <ListBox Margin="1,0,0,0" 
-                      Grid.Row="2" 
-                      ItemsSource="{Binding Tables, UpdateSourceTrigger=Explicit}" 
-                      SelectedItem="{Binding SelectedTable}"
-                      DisplayMemberPath="Name" Grid.ColumnSpan="2">
+                     Grid.Row="2" 
+                     ItemsSource="{Binding Tables, UpdateSourceTrigger=PropertyChanged}" 
+                     SelectedItem="{Binding SelectedTable}"
+                     DisplayMemberPath="Name" Grid.ColumnSpan="2">
 
                 <ListBox.ContextMenu>
                     <ContextMenu  DataContext="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget.DataContext}">
                         <MenuItem Header="Создать таблицу"
-                                  Command="{Binding CreateNewTableCommand}"
-                                   />
+                                  Command="{Binding CreateNewTableCommand}"/>
 
                         <MenuItem Header="Добавить таблицу из файла"/>
                     </ContextMenu>
@@ -208,16 +201,10 @@
                     ItemBindingGroup="{Binding Tables}"
                     SelectedItem="{Binding SelectedTable}">
             <TabItem Header="{Binding SelectedTable.Name}">
-                <DataGrid ItemsSource="{Binding Rows, UpdateSourceTrigger=PropertyChanged}" 
-                      BorderThickness="2" BorderBrush="#9ba4b4">
-
-                </DataGrid>
+                <forms:DataGridView x:Name="DataGrid">
+                   
+                </forms:DataGridView>
             </TabItem>
         </TabControl>
-        <!--<GroupBox Grid.Row="2" 
-                  Grid.Column="1" 
-                  Header="{Binding SelectedTable.Name, FallbackValue='Таблицы', TargetNullValue='Таблица не выбрана'}">
-
-        </GroupBox>-->
     </Grid>
 </Window>

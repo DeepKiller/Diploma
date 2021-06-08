@@ -50,7 +50,9 @@ namespace BDBSM_WindowsApp.ViewModels
             var infoDialogViewModel = new InfoDialogViewModel();
 
             if (infoDialogViewModel.ShowDialog(new InfoDialog()) == false)
+            {
                 return;
+            }
 
             DialogResult = true;
             

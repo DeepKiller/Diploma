@@ -2,12 +2,11 @@
 
 namespace BDBSM_WindowsApp.Views
 {
-    public partial class InfoDialog : Window
+    public partial class CreateRelation : Window
     {
-        public InfoDialog()
+        public CreateRelation()
         {
             InitializeComponent();
-            InputText.Focus();
         }
     }
 }

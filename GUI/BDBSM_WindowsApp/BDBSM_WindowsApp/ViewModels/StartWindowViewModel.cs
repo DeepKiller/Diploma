@@ -3,6 +3,7 @@ using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
 using BDBSM_WindowsApp.Views;
 using Microsoft.Win32;
+using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
@@ -61,48 +62,46 @@ namespace BDBSM_WindowsApp.ViewModels
 
         private void OnOpenDatabaseCommandExecuted(object p)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            OpenFileDialog openFileDialog = new OpenFileDialog();
 
             #region Настройки диалогового окна.
 
-            saveFileDialog.Title = "Путь для новой Базы данных";
-            saveFileDialog.Filter = "Biba Database|*.bdb";
+            openFileDialog.Title = "Путь для новой Базы данных";
+            openFileDialog.Filter = "Biba Database|*.bdb";
 
             #endregion
 
-            if (saveFileDialog.ShowDialog() == false)
+            if (openFileDialog.ShowDialog() == false)
                 return;
 
-            DataBase.Path = saveFileDialog.FileName;
+            DataBase.Path = openFileDialog.FileName;
+
 
             var infoDialogViewModel = new InfoDialogViewModel();
+            try
+            {
+                if (infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB SECYRITY", "Введите пароль базы данных") == false)
+                    return;
 
-            if (infoDialogViewModel.ShowDialog(new InfoDialog(), "BDBSECYRITY", "Введите пароль базы данных") == false)
-                return;
+                #region Открытие файла.
+                DataBase.DeCryptData(infoDialogViewModel.InputText);
 
-            #region Открытие файла.
+                DataBase.DecompresByGlobalPath();
 
-            DataBase.DeCryptData(infoDialogViewModel.InputText);
+                DataBase.DisassembleBaseFile();
+                #endregion
 
-            DataBase.DecompresByGlobalPath();
+                Show(new MainWindowViewModel(), new MainWindow());
 
-            DataBase.DisassembleBaseFile();
-            #endregion
+                OnCloseWindowCommandExecuted(p);
 
-            Show(new MainWindowViewModel(), new MainWindow());
-
-            OnCloseWindowCommandExecuted(p);
+            }
+            catch (DataBase.IncorrectPasswordException)
+            {
+                infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB ERROR", "Неправильный пароль", Visibility.Hidden);
+            }
         }
 
-        #endregion
-
-        #region OpenReferenceCommand
-        public ICommand OpenReferenceCommand { get; }
-
-        private void OnOpenReferenceCommandExecuted(object p)
-        {
-
-        }
         #endregion
 
         #region RollUpWindowCommand
@@ -138,7 +137,6 @@ namespace BDBSM_WindowsApp.ViewModels
         {
             OpenCreateFileDialogCommand = new ActionCommand(OnOpenCreateFileDialogCommandExecuted, CanOpenCreateFileDialogCommand);
             OpenDatabaseCommand = new ActionCommand(OnOpenDatabaseCommandExecuted, CanOpenDatabaseCommand);
-            OpenReferenceCommand = new ActionCommand(OnOpenReferenceCommandExecuted, null);
         }
     }
 }

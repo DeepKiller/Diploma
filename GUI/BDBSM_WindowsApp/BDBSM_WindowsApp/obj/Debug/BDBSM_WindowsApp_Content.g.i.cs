@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("icon%20(4).ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/icons/makerelation.png")]
 
 

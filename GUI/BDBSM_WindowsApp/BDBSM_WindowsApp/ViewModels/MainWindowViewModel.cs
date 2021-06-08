@@ -2,12 +2,11 @@
 using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
 using BDBSM_WindowsApp.Views;
-using Microsoft.Win32;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Forms;
 using System.Windows.Input;
 using static BDB.Table;
 
@@ -26,40 +25,50 @@ namespace BDBSM_WindowsApp.ViewModels
             DependencyProperty.Register("SelectedTable", typeof(Table), typeof(MainWindowViewModel), new PropertyMetadata(null, SelectedTable_Changed));
 
 
-
-        public List<Row> Rows
+        public List<Row> CurrentRows
         {
-            get { return (List<Row>)GetValue(RowsProperty); }
-            set { SetValue(RowsProperty, value); }
+            get { return (List<Row>)GetValue(CurrentRowsProperty); }
+            set { SetValue(CurrentRowsProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Rows.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RowsProperty =
-            DependencyProperty.Register("Rows", typeof(List<Row>), typeof(MainWindowViewModel), new PropertyMetadata(null));
+        // Using a DependencyProperty as the backing store for CurrentRows.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CurrentRowsProperty =
+            DependencyProperty.Register("CurrentRows", typeof(List<Row>), typeof(MainWindowViewModel), new PropertyMetadata(null));
+
+
+
+
+        public DataGridView DataGrid
+        {
+            get { return (DataGridView)GetValue(DataGridProperty); }
+            set { SetValue(DataGridProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for DataGrid.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DataGridProperty =
+            DependencyProperty.Register("DataGrid", typeof(DataGridView), typeof(MainWindowViewModel), new PropertyMetadata(null));
 
         private static void SelectedTable_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var current = d as MainWindowViewModel;
-            
-            if (current == null)
+            if (!(d is MainWindowViewModel current))
                 return;
 
             if (current.SelectedTable == null)
                 return;
 
-            current.Rows = null;
-            current.Rows = current.SelectedTable.Rows;
+            current.CurrentRows = null;
+            current.CurrentRows = current.SelectedTable.Rows;
         }
 
-        public ArrayList Cols
+        public List<Row.Column> CurrentCols
         {
-            get { return (ArrayList)GetValue(ColsProperty); }
-            set { SetValue(ColsProperty, value); }
+            get { return (List<Row.Column>)GetValue(CurrentColsProperty); }
+            set { SetValue(CurrentColsProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Cols.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ColsProperty =
-            DependencyProperty.Register("Cols", typeof(ArrayList), typeof(MainWindowViewModel), new PropertyMetadata(null));
+        // Using a DependencyProperty as the backing store for CurrentCols.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CurrentColsProperty =
+            DependencyProperty.Register("CurrentCols", typeof(List<Row.Column>), typeof(MainWindowViewModel), new PropertyMetadata(new List<Row.Column>()));
 
 
 
@@ -87,9 +96,7 @@ namespace BDBSM_WindowsApp.ViewModels
 
         private static void FilterText_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var current = d as MainWindowViewModel;
-
-            if (current == null)
+            if (!(d is MainWindowViewModel current))
                 return;
 
             current.Tables.Filter = null;
@@ -97,9 +104,7 @@ namespace BDBSM_WindowsApp.ViewModels
         }
         private bool FilterTable(object obj)
         {
-            Table current = obj as Table;
-
-            if (!string.IsNullOrWhiteSpace(FilterText) && current != null && !current.Name.Contains(FilterText))
+            if (!string.IsNullOrWhiteSpace(FilterText) && obj is Table current && !current.Name.Contains(FilterText))
                 return false;
 
             return true;
@@ -123,53 +128,74 @@ namespace BDBSM_WindowsApp.ViewModels
         public ICommand SaveDatabaseCommand { get; }
 
         private bool CanSaveDatabaseCommand(object p) => true;
-        private void OnSaveDatabaseCommandExecuted(object p) => DataBase.MakeBaseFile(DataBase.Path);
-
-        #endregion
-
-        #region CreateNewTableCommand
-
-        public ICommand CreateNewTableCommand { get; }
-
-        public bool CanCreateNewTableCommand(object p) => true;
-        public void OnCreateNewTableCommandExecute(object p) 
+        private void OnSaveDatabaseCommandExecuted(object p)
         {
+            DataBase.MakeBaseFile(DataBase.Path);
+            DataBase.CompresByGlobalPath();
+            DataBase.CryptData();
+
             var infoDialogViewModel = new InfoDialogViewModel();
 
-            string tableName;
-
-            if (infoDialogViewModel.ShowDialog(new InfoDialog(),"BDBCREATOR", "Введите имя таблицы") == false)
-                return;
-
-            tableName = infoDialogViewModel.InputText + ".bdbt";
-
-            var table = new Table(SetOnlyPath() + tableName);
-
-            table.SaveChanges();
-
-            Tables = CollectionViewSource.GetDefaultView(DataBase.GetTables());
+            infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB NOTIFICATION", "База данных успешна сохранена!", Visibility.Hidden);
         }
 
         #endregion
 
-        #region SetCurrentTableRowsCommand
+        #region SaveDatabaseHowCommand
 
-        public ICommand SetCurrentTableRowsCommand { get; }
+        public ICommand SaveDatabaseHowCommand { get; }
 
-        public bool CanSetCurrentTableRows(object p) => true;
-        public void OnSetCurrentTableRows(object p)
+        private bool CanSaveDatabaseHowCommand(object p) => true;
+        private void OnSaveDatabaseHowCommandExecuted(object p)
         {
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
 
+            #region Настройки диалогового окна.
+
+            saveFileDialog.Title = "Путь для новой Базы данных";
+            saveFileDialog.Filter = "Biba Database|*.bdb";
+
+            #endregion
+
+            if (saveFileDialog.ShowDialog() == false)
+                return;
+            
+            var tables = DataBase.GetTables();
+            DataBase.Path = saveFileDialog.FileName;
+
+            foreach (var table in tables)
+            {
+                table.DeleteTable();
+                table.Path = SetOnlyPath(DataBase.Path) + table.Name + ".bdbt";
+                table.SaveChanges();
+            }
+
+            #region Сохранение.
+            DataBase.MakeBaseFile(DataBase.Path);
+            DataBase.CompresByGlobalPath();
+            DataBase.CryptData();
+            #endregion
+
+            DatabaseName = SetDatabaseName();
+
+            #region Открытие.
+            DataBase.DeCryptData("1111");
+            DataBase.DecompresByGlobalPath();
+            DataBase.DisassembleBaseFile();
+            #endregion
+
+            var infoDialogViewModel = new InfoDialogViewModel();
+
+            infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB NOTIFICATION", "База данных успешна сохранена в новом пути!", Visibility.Hidden);
         }
-
         #endregion
 
         #region OpenDatabaseCommand
         public ICommand OpenDatabaseCommand { get; }
-        
+
         private void OnOpenDatabaseCommand(object p)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
 
             #region Настройки диалогового окна.
 
@@ -189,7 +215,6 @@ namespace BDBSM_WindowsApp.ViewModels
                 return;
 
             #region Открытие файла.
-
             DataBase.DeCryptData(infoDialogViewModel.InputText);
 
             DataBase.DecompresByGlobalPath();
@@ -197,6 +222,79 @@ namespace BDBSM_WindowsApp.ViewModels
             DataBase.DisassembleBaseFile();
             #endregion
         }
+        #endregion
+
+        #region CreateNewDatabaseCommand
+        public ICommand CreateNewDatabaseCommand { get; }
+
+        private bool CanCreateNewDatabaseCommand(object p) => true;
+        private void OnCreateNewDatabaseCommandExecuted(object p)
+        {
+            var createFileDialog = new CreateFileDialogViewModel();
+
+            if (ShowDialog(createFileDialog, new CreateFileDialog()) == false)
+                return;
+
+            CloseWithCreateNew(p);
+        }
+        #endregion
+
+        #region CreateNewTableCommand
+
+        public ICommand CreateNewTableCommand { get; }
+
+        public bool CanCreateNewTableCommand(object p) => true;
+        public void OnCreateNewTableCommandExecute(object p) 
+        {
+            var infoDialogViewModel = new InfoDialogViewModel();
+
+            string tableName;
+
+            if (infoDialogViewModel.ShowDialog(new InfoDialog(),"BDBCREATOR", "Введите имя таблицы") == false)
+                return;
+
+            tableName = infoDialogViewModel.InputText + ".bdbt";
+
+            var table = new Table(SetOnlyPath(DataBase.Path) + tableName);
+            string[] Cols = { "one", "two", "id" };
+            string[] Data = { "1", "2" };
+            table.SetColNames(Cols);
+            table.AddRow(Data);
+            table.SaveChanges();
+
+            
+
+            Tables = CollectionViewSource.GetDefaultView(DataBase.GetTables());
+
+        }
+
+        #endregion
+
+        #region SetCurrentTableRowsCommand
+
+        public ICommand SetCurrentTableRowsCommand { get; }
+
+        public bool CanSetCurrentTableRows(object p) => true;
+        public void OnSetCurrentTableRows(object p)
+        {
+
+        }
+
+        #endregion
+
+        #region SaveTablesCommand
+        public ICommand SaveTablesCommand { get; }
+        private void OnSaveTablesCommandExecuted(object p)
+        {
+            var tables = DataBase.GetTables();
+
+            foreach (var table in tables)
+            {
+                table.SaveChanges();
+            }
+        }
+
+        private bool CanSaveTablesCommand(object p) => true;
         #endregion
 
         #region Close
@@ -234,44 +332,14 @@ namespace BDBSM_WindowsApp.ViewModels
         }
         #endregion
 
-        #region SaveDatabaseHowCommand
+        #region CreateRelationCommand
+        public ICommand CreateRelationCommand { get; }
 
-        public ICommand SaveDatabaseHowCommand { get; }
-
-        private bool CanSaveDatabaseHowCommand(object p) => true;
-        private void OnSaveDatabaseHowCommandExecuted(object p)
+        private void OnCreateRelationCommandExecuted(object p)
         {
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-            #region Настройки диалогового окна.
-
-            saveFileDialog.Title = "Путь для новой Базы данных";
-            saveFileDialog.Filter = "Biba Database|*.bdb";
-
-            #endregion
-
-            if (saveFileDialog.ShowDialog() == false)
-                return;
-
-            DataBase.Path = saveFileDialog.FileName;
-
-            DataBase.MakeBaseFile(DataBase.Path);
+            Show(new CreateRelationViewModel(Tables), new CreateRelation());
         }
-        #endregion
-
-        #region CreateNewDatabaseCommand
-        public ICommand CreateNewDatabaseCommand { get; }
-
-        private bool CanCreateNewDatabaseCommand(object p) => true;
-        private void OnCreateNewDatabaseCommandExecuted(object p)
-        {
-            var createFileDialog = new CreateFileDialogViewModel();
-
-            if (ShowDialog(createFileDialog, new CreateFileDialog()) == false)
-                return;
-
-            CloseWithCreateNew(p);
-        }
+        private bool CanCreateRelationCommand(object p) => true;
         #endregion
 
         #endregion
@@ -283,12 +351,15 @@ namespace BDBSM_WindowsApp.ViewModels
             Tables.Filter = FilterTable;
 
             SaveDatabaseCommand = new ActionCommand(OnSaveDatabaseCommandExecuted, CanSaveDatabaseCommand);
+            SaveDatabaseHowCommand = new ActionCommand(OnSaveDatabaseHowCommandExecuted, CanSaveDatabaseHowCommand);
             OpenDatabaseCommand = new ActionCommand(OnOpenDatabaseCommand, null);
             CreateNewDatabaseCommand = new ActionCommand(OnCreateNewDatabaseCommandExecuted, CanCreateNewDatabaseCommand);
             
             CreateNewTableCommand = new ActionCommand(OnCreateNewTableCommandExecute, CanCreateNewTableCommand);
-
+            SaveTablesCommand = new ActionCommand(OnSaveTablesCommandExecuted, CanSaveTablesCommand);
             SetCurrentTableRowsCommand = new ActionCommand(OnSetCurrentTableRows, CanSetCurrentTableRows);
+
+            CreateRelationCommand = new ActionCommand(OnCreateRelationCommandExecuted, CanCreateRelationCommand);
         }
 
         private string SetDatabaseName()
@@ -309,9 +380,8 @@ namespace BDBSM_WindowsApp.ViewModels
             // Иначе из полного имени файла удаляется его имя.
             return countLetter <= 0 ? path : path.Remove(0, DataBase.Path.Length - (DataBase.Path.Length - countLetter));
         }
-        private string SetOnlyPath()
+        private string SetOnlyPath(string path)
         {
-            var path = DataBase.Path;
             var countSymbolInName = 1;
             for (int i = path.Length - 1; i >= 0; i--)
             {
