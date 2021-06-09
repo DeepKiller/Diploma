@@ -6,7 +6,7 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:viewmodel="clr-namespace:BDBSM_WindowsApp.ViewModels"
         xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
-        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:forms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes" 
         mc:Ignorable="d"
         Title="BDBSM Studio" Height="450" Width="800"
         WindowStyle="None"
@@ -66,7 +66,7 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Text="{Binding DatabaseName, UpdateSourceTrigger=PropertyChanged}" 
+            <TextBox Text="{Binding DatabaseName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
                        Foreground="White"
                        Grid.Column="5"
                        Grid.ColumnSpan="2"
@@ -163,14 +163,14 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0" 
-                       Text="{Binding DatabaseName, UpdateSourceTrigger=PropertyChanged}"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center" 
-                       Margin="10" 
-                       Height="20" 
-                       Width="330" 
-                       Grid.ColumnSpan="2" />
+            <TextBox Grid.Row="0" 
+                     Text="{Binding DatabaseName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center" 
+                     Margin="10" 
+                     Height="30" 
+                     Width="330" 
+                     Grid.ColumnSpan="2" />
 
             <TextBox Grid.Row="1" 
                      Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
@@ -195,16 +195,12 @@
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
+
         </Grid>
-        <TabControl Grid.Row="2" 
-                    Grid.Column="1"
-                    ItemBindingGroup="{Binding Tables}"
-                    SelectedItem="{Binding SelectedTable}">
-            <TabItem Header="{Binding SelectedTable.Name}">
-                <forms:DataGridView x:Name="DataGrid">
-                   
-                </forms:DataGridView>
-            </TabItem>
-        </TabControl>
+        <DataGrid Grid.Row="2"
+                  Grid.Column="1"
+                  ItemsSource="{Binding ObservableCollection[0]}" >
+
+        </DataGrid>
     </Grid>
 </Window>

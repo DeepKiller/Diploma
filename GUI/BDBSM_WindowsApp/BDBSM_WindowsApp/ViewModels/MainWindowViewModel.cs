@@ -3,10 +3,11 @@ using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
 using BDBSM_WindowsApp.Views;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Forms;
 using System.Windows.Input;
 using static BDB.Table;
 
@@ -14,6 +15,18 @@ namespace BDBSM_WindowsApp.ViewModels
 {
     class MainWindowViewModel : BaseViewModel
     {
+        public string DatabaseName
+        {
+            get { return (string)GetValue(DatabaseNameProperty); }
+            set { SetValue(DatabaseNameProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for DatabaseName.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DatabaseNameProperty =
+            DependencyProperty.Register("DatabaseName", typeof(string), typeof(MainWindowViewModel), new PropertyMetadata(""));
+
+
+
         public Table SelectedTable
         {
             get { return (Table)GetValue(SelectedTableProperty); }
@@ -23,30 +36,7 @@ namespace BDBSM_WindowsApp.ViewModels
         // Using a DependencyProperty as the backing store for SelectedTable.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedTableProperty =
             DependencyProperty.Register("SelectedTable", typeof(Table), typeof(MainWindowViewModel), new PropertyMetadata(null, SelectedTable_Changed));
-
-
-        public List<Row> CurrentRows
-        {
-            get { return (List<Row>)GetValue(CurrentRowsProperty); }
-            set { SetValue(CurrentRowsProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for CurrentRows.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty CurrentRowsProperty =
-            DependencyProperty.Register("CurrentRows", typeof(List<Row>), typeof(MainWindowViewModel), new PropertyMetadata(null));
-
-
-
-
-        public DataGridView DataGrid
-        {
-            get { return (DataGridView)GetValue(DataGridProperty); }
-            set { SetValue(DataGridProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for DataGrid.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DataGridProperty =
-            DependencyProperty.Register("DataGrid", typeof(DataGridView), typeof(MainWindowViewModel), new PropertyMetadata(null));
+        
 
         private static void SelectedTable_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -56,20 +46,47 @@ namespace BDBSM_WindowsApp.ViewModels
             if (current.SelectedTable == null)
                 return;
 
-            current.CurrentRows = null;
-            current.CurrentRows = current.SelectedTable.Rows;
+            for (int i = 1; i < current.SelectedTable.Rows.Count; i++)
+            {
+                current.ListOfDynamicObject.Add(CreateDynamic(current.SelectedTable.Rows[0].Cols, current.SelectedTable.Rows[i].Cols));
+            }
+
+            current.ObservableCollection = new ObservableCollection<ExpandoObject>(current.ListOfDynamicObject);
         }
 
-        public List<Row.Column> CurrentCols
+        private static ExpandoObject CreateDynamic(List<Row.Column> propertyName, List<Row.Column> propertyValue)
         {
-            get { return (List<Row.Column>)GetValue(CurrentColsProperty); }
-            set { SetValue(CurrentColsProperty, value); }
+            dynamic obj = new ExpandoObject();
+
+            for (int i = 0; i < propertyName.Count; i++)
+            {
+                ((IDictionary<string, object>)obj)[propertyName[i].Data] = propertyValue[i].Data;
+            }
+
+            return obj;
+        }
+        public ObservableCollection<ExpandoObject> ObservableCollection
+        {
+            get { return (ObservableCollection<ExpandoObject>)GetValue(ObservableCollectionProperty); }
+            set { SetValue(ObservableCollectionProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for CurrentCols.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty CurrentColsProperty =
-            DependencyProperty.Register("CurrentCols", typeof(List<Row.Column>), typeof(MainWindowViewModel), new PropertyMetadata(new List<Row.Column>()));
+        // Using a DependencyProperty as the backing store for ObservableCollection.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ObservableCollectionProperty =
+            DependencyProperty.Register("ObservableCollection", typeof(ObservableCollection<ExpandoObject>), typeof(MainWindowViewModel), new PropertyMetadata(new ObservableCollection<ExpandoObject>()));
 
+
+
+
+        public List<ExpandoObject> ListOfDynamicObject
+        {
+            get { return (List<ExpandoObject>)GetValue(ListOfDynamicObjectProperty); }
+            set { SetValue(ListOfDynamicObjectProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ListOfDynamicObject.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ListOfDynamicObjectProperty =
+            DependencyProperty.Register("ListOfDynamicObject", typeof(List<ExpandoObject>), typeof(MainWindowViewModel), new PropertyMetadata(new List<ExpandoObject>()));
 
 
         public ICollectionView Tables
@@ -111,15 +128,7 @@ namespace BDBSM_WindowsApp.ViewModels
         }
         #endregion
 
-        public string DatabaseName
-        {
-            get { return (string)GetValue(DatabaseNameProperty); }
-            set { SetValue(DatabaseNameProperty, value); }
-        }
 
-        // Using a DependencyProperty as the backing store for DatabaseName.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DatabaseNameProperty =
-            DependencyProperty.Register("DatabaseName", typeof(string), typeof(MainWindowViewModel), new PropertyMetadata(""));
 
         #region Команды
 
@@ -258,10 +267,11 @@ namespace BDBSM_WindowsApp.ViewModels
             var table = new Table(SetOnlyPath(DataBase.Path) + tableName);
             string[] Cols = { "one", "two", "id" };
             string[] Data = { "1", "2" };
+            string[] st = { "4", "6" };
             table.SetColNames(Cols);
             table.AddRow(Data);
+            table.AddRow(st);
             table.SaveChanges();
-
             
 
             Tables = CollectionViewSource.GetDefaultView(DataBase.GetTables());

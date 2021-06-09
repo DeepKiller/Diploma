@@ -41,3 +41,9 @@ D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\MaterialDes
 D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\BDB.dll
 D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\obj\Debug\Views\CreateRelation.g.cs
 D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\obj\Debug\Views\CreateRelation.baml
+D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\Xceed.Wpf.Controls.v7.0.dll
+D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\Xceed.Wpf.Controls.v7.0.XmlSerializers.dll
+D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\Xceed.Wpf.DataGrid.v7.0.dll
+D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\Xceed.Wpf.DataGrid.v7.0.XmlSerializers.dll
+D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\Xceed.Wpf.Controls.v7.0.xml
+D:\Vlad\Work\Diploma\GUI\BDBSM_WindowsApp\BDBSM_WindowsApp\bin\Debug\Xceed.Wpf.DataGrid.v7.0.xml

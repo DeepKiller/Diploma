@@ -72,6 +72,18 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="Xceed.Wpf.Controls.v7.0, Version=7.0.21122.9580, Culture=neutral, PublicKeyToken=ba83ff368b7563c6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xceed.Wpf.Controls.7.0.21122.9580\lib\net40\Xceed.Wpf.Controls.v7.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.Controls.v7.0.XmlSerializers, Version=7.0.21122.9580, Culture=neutral, PublicKeyToken=ba83ff368b7563c6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xceed.Wpf.Controls.7.0.21122.9580\lib\net40\Xceed.Wpf.Controls.v7.0.XmlSerializers.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.DataGrid.v7.0, Version=7.0.21122.9580, Culture=neutral, PublicKeyToken=ba83ff368b7563c6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xceed.Wpf.DataGrid.7.0.21122.9580\lib\net40\Xceed.Wpf.DataGrid.v7.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Xceed.Wpf.DataGrid.v7.0.XmlSerializers, Version=7.0.21122.9580, Culture=neutral, PublicKeyToken=ba83ff368b7563c6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xceed.Wpf.DataGrid.7.0.21122.9580\lib\net40\Xceed.Wpf.DataGrid.v7.0.XmlSerializers.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
