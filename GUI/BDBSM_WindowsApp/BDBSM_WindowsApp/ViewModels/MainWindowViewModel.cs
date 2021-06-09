@@ -5,6 +5,7 @@ using BDBSM_WindowsApp.Views;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Dynamic;
 using System.Windows;
 using System.Windows.Data;
@@ -46,13 +47,39 @@ namespace BDBSM_WindowsApp.ViewModels
             if (current.SelectedTable == null)
                 return;
 
-            for (int i = 1; i < current.SelectedTable.Rows.Count; i++)
-            {
-                current.ListOfDynamicObject.Add(CreateDynamic(current.SelectedTable.Rows[0].Cols, current.SelectedTable.Rows[i].Cols));
-            }
+            //for (int i = 1; i < current.SelectedTable.Rows.Count; i++)
+            //{
+            //    current.ListOfDynamicObject.Add(CreateDynamic(current.SelectedTable.Rows[0].Cols, current.SelectedTable.Rows[i].Cols));
+            //}
 
-            current.ObservableCollection = new ObservableCollection<ExpandoObject>(current.ListOfDynamicObject);
+            //current.ObservableCollection = new ObservableCollection<ExpandoObject>(current.ListOfDynamicObject);
+            var data = new DataTable();
+            foreach (var col in current.SelectedTable.Rows[0].Cols)
+                data.Columns.Add(col.Data);
+            for(int i=1; i < current.SelectedTable.Rows.Count;i++)
+                data.Rows.Add(GetArrayFromRow(current.SelectedTable.Rows[i]));
+            current.DataTable = data.AsDataView();
         }
+
+        public static object[] GetArrayFromRow(Row row)
+        {
+            var arr = new object[row.Cols.Count];
+            for (int i = 0; i < row.Cols.Count; i++)
+                arr[i] = row.Cols[i].Data;
+            return arr;
+        }
+
+        public DataView DataTable
+        {
+            get { return (DataView)GetValue(DataTableProperty); }
+            set { SetValue(DataTableProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for DataTable.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DataTableProperty =
+            DependencyProperty.Register("DataTable", typeof(DataView), typeof(MainWindowViewModel), new PropertyMetadata(null));
+
+
 
         private static ExpandoObject CreateDynamic(List<Row.Column> propertyName, List<Row.Column> propertyValue)
         {
@@ -296,8 +323,21 @@ namespace BDBSM_WindowsApp.ViewModels
         public ICommand SaveTablesCommand { get; }
         private void OnSaveTablesCommandExecuted(object p)
         {
+            var current = p as MainWindowViewModel;
+            current.SelectedTable.Rows.Clear();
+            string[] row = new string[current.DataTable.Table.Columns.Count];
+            for (int i = 0; i < current.DataTable.Table.Columns.Count; i++)
+                row[i] = current.DataTable.Table.Columns[i].ColumnName;
+            current.SelectedTable.SetColNames(row);
+            foreach (DataRow r in current.DataTable.Table.Rows)
+            {
+                row = new string[current.DataTable.Table.Columns.Count];
+                for (int i = 0; i < current.DataTable.Table.Columns.Count; i++)
+                    row[i] = r.ItemArray[i].ToString();
+                current.SelectedTable.AddRow(row);
+            }
+            current.SelectedTable.SaveChanges();
             var tables = DataBase.GetTables();
-
             foreach (var table in tables)
             {
                 table.SaveChanges();
