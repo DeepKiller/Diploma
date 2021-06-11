@@ -3,10 +3,8 @@ using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
 using BDBSM_WindowsApp.Views;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
-using System.Dynamic;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -25,107 +23,6 @@ namespace BDBSM_WindowsApp.ViewModels
         // Using a DependencyProperty as the backing store for DatabaseName.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty DatabaseNameProperty =
             DependencyProperty.Register("DatabaseName", typeof(string), typeof(MainWindowViewModel), new PropertyMetadata(""));
-
-
-
-        public Table SelectedTable
-        {
-            get { return (Table)GetValue(SelectedTableProperty); }
-            set { SetValue(SelectedTableProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for SelectedTable.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SelectedTableProperty =
-            DependencyProperty.Register("SelectedTable", typeof(Table), typeof(MainWindowViewModel), new PropertyMetadata(null, SelectedTable_Changed));
-        
-
-        private static void SelectedTable_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (!(d is MainWindowViewModel current))
-                return;
-
-            if (current.SelectedTable == null)
-                return;
-
-            //for (int i = 1; i < current.SelectedTable.Rows.Count; i++)
-            //{
-            //    current.ListOfDynamicObject.Add(CreateDynamic(current.SelectedTable.Rows[0].Cols, current.SelectedTable.Rows[i].Cols));
-            //}
-
-            //current.ObservableCollection = new ObservableCollection<ExpandoObject>(current.ListOfDynamicObject);
-            var data = new DataTable();
-            foreach (var col in current.SelectedTable.Rows[0].Cols)
-                data.Columns.Add(col.Data);
-            for(int i=1; i < current.SelectedTable.Rows.Count;i++)
-                data.Rows.Add(GetArrayFromRow(current.SelectedTable.Rows[i]));
-            current.DataTable = data.AsDataView();
-        }
-
-        public static object[] GetArrayFromRow(Row row)
-        {
-            var arr = new object[row.Cols.Count];
-            for (int i = 0; i < row.Cols.Count; i++)
-                arr[i] = row.Cols[i].Data;
-            return arr;
-        }
-
-        public DataView DataTable
-        {
-            get { return (DataView)GetValue(DataTableProperty); }
-            set { SetValue(DataTableProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for DataTable.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DataTableProperty =
-            DependencyProperty.Register("DataTable", typeof(DataView), typeof(MainWindowViewModel), new PropertyMetadata(null));
-
-
-
-        private static ExpandoObject CreateDynamic(List<Row.Column> propertyName, List<Row.Column> propertyValue)
-        {
-            dynamic obj = new ExpandoObject();
-
-            for (int i = 0; i < propertyName.Count; i++)
-            {
-                ((IDictionary<string, object>)obj)[propertyName[i].Data] = propertyValue[i].Data;
-            }
-
-            return obj;
-        }
-        public ObservableCollection<ExpandoObject> ObservableCollection
-        {
-            get { return (ObservableCollection<ExpandoObject>)GetValue(ObservableCollectionProperty); }
-            set { SetValue(ObservableCollectionProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for ObservableCollection.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ObservableCollectionProperty =
-            DependencyProperty.Register("ObservableCollection", typeof(ObservableCollection<ExpandoObject>), typeof(MainWindowViewModel), new PropertyMetadata(new ObservableCollection<ExpandoObject>()));
-
-
-
-
-        public List<ExpandoObject> ListOfDynamicObject
-        {
-            get { return (List<ExpandoObject>)GetValue(ListOfDynamicObjectProperty); }
-            set { SetValue(ListOfDynamicObjectProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for ListOfDynamicObject.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ListOfDynamicObjectProperty =
-            DependencyProperty.Register("ListOfDynamicObject", typeof(List<ExpandoObject>), typeof(MainWindowViewModel), new PropertyMetadata(new List<ExpandoObject>()));
-
-
-        public ICollectionView Tables
-        {
-            get { return (ICollectionView)GetValue(TablesProperty); }
-            set { SetValue(TablesProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for Tables.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TablesProperty =
-            DependencyProperty.Register("Tables", typeof(ICollectionView), typeof(MainWindowViewModel), new PropertyMetadata(null));
-
 
         #region FilterText
         public string FilterText
@@ -155,6 +52,108 @@ namespace BDBSM_WindowsApp.ViewModels
         }
         #endregion
 
+        #region SelectedTable
+        private Table _previousTable;
+        public Table SelectedTable
+        {
+            get { return (Table)GetValue(SelectedTableProperty); }
+            set { SetValue(SelectedTableProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectedTable.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectedTableProperty =
+            DependencyProperty.Register("SelectedTable", typeof(Table), typeof(MainWindowViewModel), new PropertyMetadata(null, SelectedTable_Changed));
+
+        private static void SelectedTable_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (!(d is MainWindowViewModel current))
+                return;
+
+            if (current.SelectedTable == null)
+                return;
+
+            current.SavePreviousTable();
+
+            current._previousTable = current.SelectedTable;
+
+            var data = new DataTable();
+            var id = new string[] { current.SelectedTable.Name };
+
+            if (current.SelectedTable.Rows.Count == 0)
+                current.SelectedTable.SetColNames(id);
+
+            foreach (var column in current.SelectedTable.Rows[0].Cols)
+                data.Columns.Add(column.Data);
+
+            for (int i = 1; i < current.SelectedTable.Rows.Count; i++)
+                data.Rows.Add(GetArrayFromRow(current.SelectedTable.Rows[i]));
+
+            current.DataTable = data.AsDataView();
+        }
+        private void SavePreviousTable()
+        {
+            if (_previousTable == null)
+                return;
+
+            _previousTable.Rows.Clear();
+            _previousTable.Ids.Clear();
+            var rows = new string[DataTable.Table.Columns.Count];
+
+            for (int i = 0; i < rows.Length; i++)
+            {
+                rows[i] = DataTable.Table.Columns[i].ColumnName;
+            }
+
+            _previousTable.Rows.Add(new Row(rows));
+
+            foreach (DataRow dataRow in DataTable.Table.Rows)
+            {
+                rows = new string[DataTable.Table.Columns.Count - 1];
+
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    rows[i] = dataRow.ItemArray[i + 1].ToString();
+                }
+
+                _previousTable.AddRow(rows);
+            }
+
+            _previousTable.SaveChanges();
+        }
+
+        public static object[] GetArrayFromRow(Row row)
+        {
+            var arr = new object[row.Cols.Count];
+
+            for (int i = 0; i < row.Cols.Count; i++)
+                arr[i] = row.Cols[i].Data;
+            return arr;
+        } 
+        #endregion
+
+
+        public DataView DataTable
+        {
+            get { return (DataView)GetValue(DataTableProperty); }
+            set { SetValue(DataTableProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for DataTable.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DataTableProperty =
+            DependencyProperty.Register("DataTable", typeof(DataView), typeof(MainWindowViewModel), new PropertyMetadata(null));
+
+
+
+        public ICollectionView Tables
+        {
+            get { return (ICollectionView)GetValue(TablesProperty); }
+            set { SetValue(TablesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Tables.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty TablesProperty =
+            DependencyProperty.Register("Tables", typeof(ICollectionView), typeof(MainWindowViewModel), new PropertyMetadata(null));
+
 
 
         #region Команды
@@ -169,10 +168,6 @@ namespace BDBSM_WindowsApp.ViewModels
             DataBase.MakeBaseFile(DataBase.Path);
             DataBase.CompresByGlobalPath();
             DataBase.CryptData();
-
-            var infoDialogViewModel = new InfoDialogViewModel();
-
-            infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB NOTIFICATION", "База данных успешна сохранена!", Visibility.Hidden);
         }
 
         #endregion
@@ -215,14 +210,14 @@ namespace BDBSM_WindowsApp.ViewModels
             DatabaseName = SetDatabaseName();
 
             #region Открытие.
-            DataBase.DeCryptData("1111");
+            DataBase.DeCryptData();
             DataBase.DecompresByGlobalPath();
             DataBase.DisassembleBaseFile();
             #endregion
 
             var infoDialogViewModel = new InfoDialogViewModel();
 
-            infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB NOTIFICATION", "База данных успешна сохранена в новом пути!", Visibility.Hidden);
+            infoDialogViewModel.ShowDialog( "BDB NOTIFICATION", "База данных успешна сохранена в новом пути!", Visibility.Hidden);
         }
         #endregion
 
@@ -247,7 +242,7 @@ namespace BDBSM_WindowsApp.ViewModels
 
             var infoDialogViewModel = new InfoDialogViewModel();
 
-            if (infoDialogViewModel.ShowDialog(new InfoDialog(), "BDBSECYRITY", "Введите пароль базы данных") == false)
+            if (infoDialogViewModel.ShowDialog("BDBSECYRITY", "Введите пароль базы данных") == false)
                 return;
 
             #region Открытие файла.
@@ -282,39 +277,33 @@ namespace BDBSM_WindowsApp.ViewModels
         public bool CanCreateNewTableCommand(object p) => true;
         public void OnCreateNewTableCommandExecute(object p) 
         {
-            var infoDialogViewModel = new InfoDialogViewModel();
+            var infoDialog = new InfoDialogViewModel();
 
             string tableName;
 
-            if (infoDialogViewModel.ShowDialog(new InfoDialog(),"BDBCREATOR", "Введите имя таблицы") == false)
+            if (infoDialog.ShowDialog("BDB CREATOR", "Введите имя таблицы") == false)
                 return;
 
-            tableName = infoDialogViewModel.InputText + ".bdbt";
+            tableName = infoDialog.InputText + ".bdbt";
+
+            try
+            {
+                var tables = DataBase.GetTables();
+
+                if (tables.Find(x => x.Name == infoDialog.InputText) != null)
+                {
+                    infoDialog.ShowDialog("BDB INFORMER", "Таблица с таким именем уже существует", Visibility.Hidden);
+                    return;
+                }
+            }
+            catch { }
 
             var table = new Table(SetOnlyPath(DataBase.Path) + tableName);
-            string[] Cols = { "one", "two", "id" };
-            string[] Data = { "1", "2" };
-            string[] st = { "4", "6" };
-            table.SetColNames(Cols);
-            table.AddRow(Data);
-            table.AddRow(st);
+
             table.SaveChanges();
             
 
             Tables = CollectionViewSource.GetDefaultView(DataBase.GetTables());
-
-        }
-
-        #endregion
-
-        #region SetCurrentTableRowsCommand
-
-        public ICommand SetCurrentTableRowsCommand { get; }
-
-        public bool CanSetCurrentTableRows(object p) => true;
-        public void OnSetCurrentTableRows(object p)
-        {
-
         }
 
         #endregion
@@ -323,21 +312,8 @@ namespace BDBSM_WindowsApp.ViewModels
         public ICommand SaveTablesCommand { get; }
         private void OnSaveTablesCommandExecuted(object p)
         {
-            var current = p as MainWindowViewModel;
-            current.SelectedTable.Rows.Clear();
-            string[] row = new string[current.DataTable.Table.Columns.Count];
-            for (int i = 0; i < current.DataTable.Table.Columns.Count; i++)
-                row[i] = current.DataTable.Table.Columns[i].ColumnName;
-            current.SelectedTable.SetColNames(row);
-            foreach (DataRow r in current.DataTable.Table.Rows)
-            {
-                row = new string[current.DataTable.Table.Columns.Count];
-                for (int i = 0; i < current.DataTable.Table.Columns.Count; i++)
-                    row[i] = r.ItemArray[i].ToString();
-                current.SelectedTable.AddRow(row);
-            }
-            current.SelectedTable.SaveChanges();
             var tables = DataBase.GetTables();
+
             foreach (var table in tables)
             {
                 table.SaveChanges();
@@ -347,33 +323,64 @@ namespace BDBSM_WindowsApp.ViewModels
         private bool CanSaveTablesCommand(object p) => true;
         #endregion
 
+        #region SaveCurrentTableCommand
+        public ICommand SaveCurrentTableCommand { get; }
+
+        private void OnSaveCurrentTableCommandExecuted(object p)
+        {
+            if(!(p is Table currentTable))
+                return;
+
+            currentTable.SaveChanges();
+            SavePreviousTable();
+        }
+        private bool CanSaveCurrentTableCommand(object p) => true;
+        #endregion
+
         #region Close
         protected override void OnCloseWindowCommandExecuted(object p)
         {
-            var infoDialogViewModel = new InfoDialogViewModel();
-            bool? canClose = infoDialogViewModel.ShowDialog(new InfoDialog(),
-                "BDBSAVER", "Сохранить базу данных?", Visibility.Hidden,
-                "Сохранить и выйти", "Выйти", "Отмена", Visibility.Visible);
+            var infoDialog = new InfoDialogViewModel();
+
+            bool? canClose = infoDialog.ShowDialog(title:"BDB SAVER", 
+                infoText:"Сохранить базу данных?", 
+                firstButtonText: "Сохранить и выйти", 
+                secondButtonText: "Выйти", 
+                thirdButtonText: "Отмена", 
+                textBoxVisibility: Visibility.Hidden,
+                firstButtonVisibility: Visibility.Visible);
 
             if (canClose == false)
                 return;
 
-            if (infoDialogViewModel.IsFirstClick)
+            if (infoDialog.IsFirstClick)
+            {
                 OnSaveDatabaseCommandExecuted(p);
-
-            base.OnCloseWindowCommandExecuted(p);
+                infoDialog.ShowDialog("BDB NOTIFICATION", "База данных успешна сохранена!", Visibility.Hidden);
+                base.OnCloseWindowCommandExecuted(p);
+            }
+            else if(infoDialog.IsSecondClick)
+            {
+                OnSaveDatabaseCommandExecuted(p);
+                base.OnCloseWindowCommandExecuted(p);
+            }
         }
         private void CloseWithCreateNew(object p)
         {
-            var infoDialogViewModel = new InfoDialogViewModel();
-            bool? canClose = infoDialogViewModel.ShowDialog(new InfoDialog(),
-                "BDBSAVER", "Сохранить базу данных?", Visibility.Hidden,
-                "Сохранить и выйти", "Выйти", "Отмена", Visibility.Visible);
+            var infoDialog = new InfoDialogViewModel();
+
+            bool? canClose = infoDialog.ShowDialog(title: "BDB SAVER",
+                infoText: "Сохранить базу данных?",
+                firstButtonText: "Сохранить и выйти",
+                secondButtonText: "Выйти",
+                thirdButtonText: "Отмена",
+                textBoxVisibility: Visibility.Hidden,
+                firstButtonVisibility: Visibility.Visible);
 
             if (canClose == false)
                 return;
 
-            if (infoDialogViewModel.IsFirstClick)
+            if (infoDialog.IsFirstClick)
                 OnSaveDatabaseCommandExecuted(p);
 
             Show(new MainWindowViewModel(), new MainWindow());
@@ -392,6 +399,49 @@ namespace BDBSM_WindowsApp.ViewModels
         private bool CanCreateRelationCommand(object p) => true;
         #endregion
 
+        #region AddColumnCommand
+        public ICommand AddColumnCommand { get; }
+
+        private void OnAddColumnCommandExecuted(object p)
+        {
+            var infoDialogViewModel = new InfoDialogViewModel();
+
+            if (infoDialogViewModel.ShowDialog( "BDB CREATOR", "Введите название столбца") == false)
+                return;
+
+            var columnName = infoDialogViewModel.InputText;
+
+            if (!(p is Table currentTable))
+                return;
+
+            //TODO: проверка наличия уже такой колонки. (c) Коля.
+
+            var rows = new string[DataTable.Table.Columns.Count + 1];
+
+            for (int i = 0; i < rows.Length - 1; i++)
+            {
+                rows[i] = DataTable.Table.Columns[i].ColumnName;
+            }
+
+            rows[rows.Length - 1] = columnName;
+
+            currentTable.Rows[0].Cols.Add(new Row.Column(columnName));
+
+            currentTable.SaveChanges();
+            var data = new DataTable();
+
+            foreach (var column in currentTable.Rows[0].Cols)
+                data.Columns.Add(column.Data);
+
+            for (int i = 1; i < currentTable.Rows.Count; i++)
+                data.Rows.Add(GetArrayFromRow(currentTable.Rows[i]));
+
+            DataTable = data.AsDataView();
+        }
+
+        private bool CanAddColumnCommand(object p) => true;
+        #endregion
+
         #endregion
 
         public MainWindowViewModel()
@@ -407,8 +457,9 @@ namespace BDBSM_WindowsApp.ViewModels
             
             CreateNewTableCommand = new ActionCommand(OnCreateNewTableCommandExecute, CanCreateNewTableCommand);
             SaveTablesCommand = new ActionCommand(OnSaveTablesCommandExecuted, CanSaveTablesCommand);
-            SetCurrentTableRowsCommand = new ActionCommand(OnSetCurrentTableRows, CanSetCurrentTableRows);
+            SaveCurrentTableCommand = new ActionCommand(OnSaveCurrentTableCommandExecuted, CanSaveCurrentTableCommand);
 
+            AddColumnCommand = new ActionCommand(OnAddColumnCommandExecuted, CanAddColumnCommand);
             CreateRelationCommand = new ActionCommand(OnCreateRelationCommandExecuted, CanCreateRelationCommand);
         }
 

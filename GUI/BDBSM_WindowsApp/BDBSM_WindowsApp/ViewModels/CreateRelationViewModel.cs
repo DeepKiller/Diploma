@@ -1,9 +1,6 @@
 ﻿using BDB;
 using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
-using BDBSM_WindowsApp.Views;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -36,7 +33,7 @@ namespace BDBSM_WindowsApp.ViewModels
         public static readonly DependencyProperty TablesWithoutSelectedProperty =
             DependencyProperty.Register("TablesWithoutSelected", typeof(ICollectionView), typeof(CreateRelationViewModel), new PropertyMetadata(null));
 
-
+        #region FirstSelectedTable
         public Table FirstSelectedTable
         {
             get { return (Table)GetValue(FirstSelectedTableProperty); }
@@ -54,6 +51,8 @@ namespace BDBSM_WindowsApp.ViewModels
             if (!(d is CreateRelationViewModel current))
                 return;
 
+            if (current.FirstSelectedTable == null)
+                return;
 
             tables.Remove(tables.Find(x => x.Name == current.FirstSelectedTable.Name));
 
@@ -62,21 +61,10 @@ namespace BDBSM_WindowsApp.ViewModels
             current.SecondTableColumns = new List<Table.Row.Column>();
 
             current.FirstTableColumns = current.FirstSelectedTable.Rows[0].Cols;
-        }
+        } 
+        #endregion
 
-
-
-        public Table.Row.Column FirstSelectedColumn
-        {
-            get { return (Table.Row.Column)GetValue(FirstSelectedColumnProperty); }
-            set { SetValue(FirstSelectedColumnProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for FirstSelectedColumn.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty FirstSelectedColumnProperty =
-            DependencyProperty.Register("FirstSelectedColumn", typeof(Table.Row.Column), typeof(CreateRelationViewModel), new PropertyMetadata(null));
-
-
+        #region SecondSelectedTable
         private Table _secondSelectedTable;
         public Table SecondSelectedTable
         {
@@ -99,7 +87,19 @@ namespace BDBSM_WindowsApp.ViewModels
 
             current.SecondTableColumns = current.SecondSelectedTable.Rows[0].Cols;
             current._secondSelectedTable = current.SecondSelectedTable;
+        } 
+        #endregion
+
+        public Table.Row.Column FirstSelectedColumn
+        {
+            get { return (Table.Row.Column)GetValue(FirstSelectedColumnProperty); }
+            set { SetValue(FirstSelectedColumnProperty, value); }
         }
+
+        // Using a DependencyProperty as the backing store for FirstSelectedColumn.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty FirstSelectedColumnProperty =
+            DependencyProperty.Register("FirstSelectedColumn", typeof(Table.Row.Column), typeof(CreateRelationViewModel), new PropertyMetadata(null));
+        
 
         public List<Table.Row.Column> FirstTableColumns
         {
@@ -136,7 +136,7 @@ namespace BDBSM_WindowsApp.ViewModels
 
             var infoDialogViewModel = new InfoDialogViewModel();
 
-            infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB NOTIFICATION", "Связь между таблицами создана!", Visibility.Hidden);
+            infoDialogViewModel.ShowDialog( "BDB NOTIFICATION", "Связь между таблицами создана!", Visibility.Hidden);
         }
         private bool CanCreateRelationCommand(object p) => true;
         #endregion 
@@ -147,6 +147,7 @@ namespace BDBSM_WindowsApp.ViewModels
         {
             CreateRelationCommand = new ActionCommand(OnCreateRelationCommandExecuted, CanCreateRelationCommand);
         }
+
         public CreateRelationViewModel(ICollectionView tables, Table currentTable)
         {
             Tables = tables;

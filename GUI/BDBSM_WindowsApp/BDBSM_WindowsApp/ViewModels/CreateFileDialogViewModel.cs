@@ -1,7 +1,6 @@
 ﻿using BDB;
 using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
-using BDBSM_WindowsApp.Views;
 using Microsoft.Win32;
 using System;
 using System.Windows;
@@ -43,20 +42,25 @@ namespace BDBSM_WindowsApp.ViewModels
         {
             var fileName = Path + "\\" + SafeFileName;
 
-            DataBase.MakeBaseFile(fileName);
-
-            DataBase.CompresByGlobalPath();
-
             var infoDialogViewModel = new InfoDialogViewModel();
 
-            if (infoDialogViewModel.ShowDialog(new InfoDialog()) == false)
-            {
+            if (infoDialogViewModel.ShowDialog() == false)
+                return;
+
+            DialogResult = true;
+
+            if (infoDialogViewModel.InputText.Length < 4)
+            { 
+                infoDialogViewModel.ShowDialog("BDB INFORMER", "Пароль должен содержать больше символов", Visibility.Hidden);
+                OnCreateDatabaseCommandExecuted(p);
                 return;
             }
 
-            DialogResult = true;
-            
-            DataBase.CryptData(infoDialogViewModel.InputText);
+            #region Создание файла.
+            DataBase.MakeBaseFile(fileName);
+            DataBase.CompresByGlobalPath();
+            DataBase.CryptData(infoDialogViewModel.InputText); 
+            #endregion
 
             Close();
         }

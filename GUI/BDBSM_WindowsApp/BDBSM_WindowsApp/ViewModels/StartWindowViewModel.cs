@@ -80,7 +80,7 @@ namespace BDBSM_WindowsApp.ViewModels
             var infoDialogViewModel = new InfoDialogViewModel();
             try
             {
-                if (infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB SECYRITY", "Введите пароль базы данных") == false)
+                if (infoDialogViewModel.ShowDialog( "BDB SECYRITY", "Введите пароль базы данных") == false)
                     return;
 
                 #region Открытие файла.
@@ -94,11 +94,10 @@ namespace BDBSM_WindowsApp.ViewModels
                 Show(new MainWindowViewModel(), new MainWindow());
 
                 OnCloseWindowCommandExecuted(p);
-
             }
             catch (DataBase.IncorrectPasswordException)
             {
-                infoDialogViewModel.ShowDialog(new InfoDialog(), "BDB ERROR", "Неправильный пароль", Visibility.Hidden);
+                infoDialogViewModel.ShowDialog( "BDB ERROR", "Неправильный пароль", Visibility.Hidden);
             }
         }
 
@@ -133,6 +132,7 @@ namespace BDBSM_WindowsApp.ViewModels
         #endregion
 
         #endregion
+
         public StartWindowViewModel()
         {
             OpenCreateFileDialogCommand = new ActionCommand(OnOpenCreateFileDialogCommandExecuted, CanOpenCreateFileDialogCommand);

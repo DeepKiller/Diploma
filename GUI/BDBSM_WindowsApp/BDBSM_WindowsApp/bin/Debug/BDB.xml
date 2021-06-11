@@ -49,6 +49,27 @@
             Подкласс для рядов в таблице
             </summary>
         </member>
+        <member name="T:BDB.Table.Row.Column">
+            <summary>
+            Класс управления колонками
+            </summary>
+        </member>
+        <member name="P:BDB.Table.Row.Column.Data">
+            <summary>
+            Данные
+            </summary>
+        </member>
+        <member name="M:BDB.Table.Row.Column.#ctor">
+            <summary>
+            Конструктор для сериализации
+            </summary>
+        </member>
+        <member name="M:BDB.Table.Row.Column.#ctor(System.String)">
+            <summary>
+            Конструктор для заполнения
+            </summary>
+            <param name="data">данные для внесения</param>
+        </member>
         <member name="P:BDB.Table.Row.Cols">
             <summary>
             Содержимое строки, столбцы
@@ -233,6 +254,11 @@
             Шифрование данных, использует path
             </summary>
             <param name="Password">Пароль для шифрования</param>
+        </member>
+        <member name="M:BDB.DataBase.DeCryptData">
+            <summary>
+            расшифрование по сохранёному паролю
+            </summary>
         </member>
         <member name="M:BDB.DataBase.DeCryptData(System.String)">
             <summary>

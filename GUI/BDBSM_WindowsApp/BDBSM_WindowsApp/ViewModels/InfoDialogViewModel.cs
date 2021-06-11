@@ -1,5 +1,6 @@
 ﻿using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
+using BDBSM_WindowsApp.Views;
 using System.Windows;
 using System.Windows.Input;
 
@@ -17,8 +18,6 @@ namespace BDBSM_WindowsApp.ViewModels
         // Using a DependencyProperty as the backing store for Title.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TitleWindowProperty =
             DependencyProperty.Register("TitleWindow", typeof(string), typeof(InfoDialogViewModel), new PropertyMetadata("BDB SECURITY"));
-
-
 
         public string FirstButtonText
         {
@@ -106,6 +105,15 @@ namespace BDBSM_WindowsApp.ViewModels
         public static readonly DependencyProperty IsFirstClickProperty =
             DependencyProperty.Register("IsFirstClick", typeof(bool), typeof(InfoDialogViewModel), new PropertyMetadata(false));
 
+        public bool IsSecondClick
+        {
+            get { return (bool)GetValue(IsSecondClickProperty); }
+            set { SetValue(IsSecondClickProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsFirstClick.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsSecondClickProperty =
+            DependencyProperty.Register("IsSecondClick", typeof(bool), typeof(InfoDialogViewModel), new PropertyMetadata(false));
         #region FirstButtonCommand
         public ICommand AcceptCommand { get; }
 
@@ -122,12 +130,21 @@ namespace BDBSM_WindowsApp.ViewModels
 
         private void OnSecondAcceptCommandExecute(object p)
         {
-            IsFirstClick = false;
+            IsSecondClick = true;
             DialogResult = true;
             Close();
         }
         #endregion
-        public bool? ShowDialog(Window view, string title, string infoText, Visibility textBoxVisibility = Visibility.Visible, 
+
+        #endregion
+
+        public InfoDialogViewModel()
+        {
+            AcceptCommand = new ActionCommand(OnAcceptCommandExecute, null);
+            SecondAcceptCommand = new ActionCommand(OnSecondAcceptCommandExecute, null);
+        }
+
+        public bool? ShowDialog(string title, string infoText, Visibility textBoxVisibility = Visibility.Visible, 
             string firstButtonText = "", string secondButtonText = "OK", string thirdButtonText = "Отмена", Visibility firstButtonVisibility = Visibility.Hidden)
         {
             TitleWindow = title;
@@ -138,23 +155,17 @@ namespace BDBSM_WindowsApp.ViewModels
             ThirdButtonText = thirdButtonText;
             FirstButtonVisibility = firstButtonVisibility;
 
-            return ShowDialog(this, view);
+            return ShowDialog(this, new InfoDialog());
         }
-        public bool? ShowDialog(Window view)
+        public bool? ShowDialog()
         {
             FirstButtonText = "";
             SecondButtonText = "OK";
             ThirdButtonText = "Отмена";
             FirstButtonVisibility = Visibility.Hidden;
-            return ShowDialog(this, view);
-        }
 
-        #endregion
+            return ShowDialog(this, new InfoDialog());
 
-        public InfoDialogViewModel()
-        {
-            AcceptCommand = new ActionCommand(OnAcceptCommandExecute, null);
-            SecondAcceptCommand = new ActionCommand(OnSecondAcceptCommandExecute, null);
         }
     }
 }
