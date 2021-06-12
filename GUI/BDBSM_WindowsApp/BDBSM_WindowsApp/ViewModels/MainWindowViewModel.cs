@@ -61,7 +61,9 @@ namespace BDBSM_WindowsApp.ViewModels
         public Table SelectedTable
         {
             get { return (Table)GetValue(SelectedTableProperty); }
-            set { SetValue(SelectedTableProperty, value); }
+            set {
+                SetValue(SelectedTableProperty, value);
+            }
         }
 
         // Using a DependencyProperty as the backing store for SelectedTable.  This enables animation, styling, binding, etc...
@@ -76,6 +78,8 @@ namespace BDBSM_WindowsApp.ViewModels
             if (current.SelectedTable == null)
                 return;
 
+            current.TableName = current.SelectedTable.Name;
+            
             current.SavePreviousTable();
 
             current._previousTable = current.SelectedTable;
@@ -184,6 +188,18 @@ namespace BDBSM_WindowsApp.ViewModels
         // Using a DependencyProperty as the backing store for SelectedColumnName.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedColumnNameProperty =
             DependencyProperty.Register("SelectedColumnName", typeof(string), typeof(MainWindowViewModel), new PropertyMetadata(""));
+
+
+
+        public string TableName
+        {
+            get { return (string)GetValue(TableNameProperty); }
+            set { SetValue(TableNameProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for TableName.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty TableNameProperty =
+            DependencyProperty.Register("TableName", typeof(string), typeof(MainWindowViewModel), new PropertyMetadata(""));
 
 
 
@@ -442,25 +458,32 @@ namespace BDBSM_WindowsApp.ViewModels
 
         private void OnEditCurrentTableNameCommandExecuted(object p)
         {
-            if (!(p is Table currentTable))
+            if (!(p is string currentTable))
                 return;
 
             var infoDialog = new InfoDialogViewModel();
 
-            if (infoDialog.ShowDialog("BDB EDITOR", "Введите новое название таблицы") == false)
-                return;
+            //if (infoDialog.ShowDialog("BDB EDITOR", "Введите новое название таблицы") == false)
+            //    return;
 
             var regex = new Regex(@"\W");
 
-            if (regex.IsMatch(infoDialog.InputText))
+            if (regex.IsMatch(TableName))
             {
                 infoDialog.ShowDialog("BDB INFORMER", "Неверно задано имя таблицы", Visibility.Hidden);
+                string newname = "";
+                foreach (char character in currentTable)
+                    if (!regex.IsMatch(character.ToString()))
+                        newname += character;
+                TableName = newname;
+                SelectedTable.Name = newname;
                 return;
             }
-
-            currentTable.Name = infoDialog.InputText;
-
-            DataTable = DataTableUpdate(currentTable);
+            SelectedTable.Name = TableName;
+            Tables.Refresh();
+            //currentTable.Name = infoDialog.InfoText;
+            //SelectedTable.Name = infoDialog.InputText;
+            //DataTable = DataTableUpdate(currentTable);
         }
 
         #endregion
@@ -481,10 +504,17 @@ namespace BDBSM_WindowsApp.ViewModels
                 return;
             }
             var headerNames = new string[SelectedTable.Rows[0].Cols.Count];
+            for (int i = 0; i < headerNames.Length; i++)
+                headerNames[i] = SelectedTable.Rows[0].Cols[i].Data;
 
             infoDialog.ShowDialog("BDB EDITOR", "Введите новое имя колонки");
-            currentColumn.Header = infoDialog.InputText;
-            SelectedTable.Rows[0].ChangeRow()
+            for (int i = 0; i < headerNames.Length; i++)
+                if (headerNames[i] == SelectedColumn.Header.ToString())
+                {
+                    headerNames[i] = infoDialog.InputText;
+                    break;
+                }
+            SelectedTable.Rows[0] = new Row(headerNames);
             SelectedTable.SaveChanges();
 
             DataTable = DataTableUpdate(SelectedTable);

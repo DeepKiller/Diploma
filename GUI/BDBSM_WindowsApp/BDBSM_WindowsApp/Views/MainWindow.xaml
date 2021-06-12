@@ -161,14 +161,20 @@
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0"
-                     Text="{Binding SelectedTable.Name, Mode=TwoWay}" 
+            <TextBox Grid.Column="0"
+                     Text="{Binding TableName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
                      Padding="0,10,0,0"
                      FontSize="18"
                      Foreground="White"
                      Margin="100,0,0,0"
                      HorizontalAlignment="Center">
-            </TextBlock>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="TextChanged">
+                        <i:InvokeCommandAction Command="{Binding EditCurrentTableNameCommand}"
+                                           CommandParameter="{Binding TableName}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </TextBox>
 
             <Button Command="{Binding EditCurrentTableNameCommand}"
                     CommandParameter="{Binding SelectedTable}"
