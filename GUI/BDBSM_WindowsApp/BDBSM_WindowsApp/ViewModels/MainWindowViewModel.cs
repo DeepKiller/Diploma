@@ -453,6 +453,35 @@ namespace BDBSM_WindowsApp.ViewModels
         }
         #endregion
 
+        #region EditCurrentTableNameButtonCommand
+        public ICommand EditCurrentTableNameButtonCommand { get; }
+
+        private void OnEditCurrentTableNameButtonCommandExecuted(object p)
+        {
+            if (!(p is Table currentTable))
+                return;
+
+            var infoDialog = new InfoDialogViewModel();
+
+            if (infoDialog.ShowDialog("BDB EDITOR", "Введите новое название таблицы") == false)
+                return;
+
+            var regex = new Regex(@"\W");
+
+            if (regex.IsMatch(infoDialog.InputText))
+            {
+                infoDialog.ShowDialog("BDB INFORMER", "Неверно задано имя таблицы", Visibility.Hidden);
+                return;
+            }
+            TableName = infoDialog.InputText;
+            SelectedTable.Name = TableName;
+            Tables.Refresh();
+            //currentTable.Name = infoDialog.InfoText;
+            //SelectedTable.Name = infoDialog.InputText;
+            //DataTable = DataTableUpdate(currentTable);
+        }
+        #endregion
+
         #region EditCurrentTableNameCommand
         public ICommand EditCurrentTableNameCommand { get; }
 
@@ -757,6 +786,7 @@ namespace BDBSM_WindowsApp.ViewModels
             SaveCurrentTableCommand = new ActionCommand(OnSaveCurrentTableCommandExecuted, CanSaveCurrentTableCommand);
             SaveTablesCommand = new ActionCommand(OnSaveTablesCommandExecuted, CanSaveTablesCommand);
             EditCurrentTableNameCommand = new ActionCommand(OnEditCurrentTableNameCommandExecuted);
+            EditCurrentTableNameButtonCommand = new ActionCommand(OnEditCurrentTableNameButtonCommandExecuted);
 
             DeleteColumnCommand = new ActionCommand(OnDeleteColumnCommand);
             AddColumnCommand = new ActionCommand(OnAddColumnCommandExecuted, CanAddColumnCommand);

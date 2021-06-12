@@ -176,7 +176,7 @@
                 </i:Interaction.Triggers>
             </TextBox>
 
-            <Button Command="{Binding EditCurrentTableNameCommand}"
+            <Button Command="{Binding EditCurrentTableNameButtonCommand}"
                     CommandParameter="{Binding SelectedTable}"
                     Style="{StaticResource WindowControlButtonTheme}"
                     Width="50"
