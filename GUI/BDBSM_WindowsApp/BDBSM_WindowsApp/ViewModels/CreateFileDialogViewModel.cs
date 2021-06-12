@@ -18,10 +18,7 @@ namespace BDBSM_WindowsApp.ViewModels
 
         // Using a DependencyProperty as the backing store for Path.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PathProperty =
-            DependencyProperty.Register("Path", 
-                typeof(string), 
-                typeof(CreateFileDialogViewModel), 
-                new PropertyMetadata(Environment.GetFolderPath(Environment.SpecialFolder.Personal)));
+            DependencyProperty.Register("Path", typeof(string), typeof(CreateFileDialogViewModel), new PropertyMetadata(Environment.GetFolderPath(Environment.SpecialFolder.Personal)));
 
         public string SafeFileName
         {
@@ -42,16 +39,16 @@ namespace BDBSM_WindowsApp.ViewModels
         {
             var fileName = Path + "\\" + SafeFileName;
 
-            var infoDialogViewModel = new InfoDialogViewModel();
+            var infoDialog = new InfoDialogViewModel();
 
-            if (infoDialogViewModel.ShowDialog() == false)
+            if (infoDialog.ShowDialog() == false)
                 return;
 
             DialogResult = true;
 
-            if (infoDialogViewModel.InputText.Length < 4)
+            if (infoDialog.InputText.Length < 4)
             { 
-                infoDialogViewModel.ShowDialog("BDB INFORMER", "Пароль должен содержать больше символов", Visibility.Hidden);
+                infoDialog.ShowDialog("BDB INFORMER", "Пароль должен содержать больше символов", Visibility.Hidden);
                 OnCreateDatabaseCommandExecuted(p);
                 return;
             }
@@ -59,7 +56,7 @@ namespace BDBSM_WindowsApp.ViewModels
             #region Создание файла.
             DataBase.MakeBaseFile(fileName);
             DataBase.CompresByGlobalPath();
-            DataBase.CryptData(infoDialogViewModel.InputText); 
+            DataBase.CryptData(infoDialog.InputText); 
             #endregion
 
             Close();
@@ -94,9 +91,8 @@ namespace BDBSM_WindowsApp.ViewModels
 
         public CreateFileDialogViewModel()
         {
-            CreateDatabaseCommand = new ActionCommand(OnCreateDatabaseCommandExecuted, null);
-            SelectPathCommand = new ActionCommand(OnSelectPathCommandExecuted, null);
+            CreateDatabaseCommand = new ActionCommand(OnCreateDatabaseCommandExecuted);
+            SelectPathCommand = new ActionCommand(OnSelectPathCommandExecuted);
         }
-
     }
 }

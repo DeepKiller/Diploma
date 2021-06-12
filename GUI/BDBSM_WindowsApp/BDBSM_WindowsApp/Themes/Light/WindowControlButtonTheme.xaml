@@ -19,9 +19,11 @@
             </Trigger>
             <DataTrigger Binding="{Binding IsMaximize}" Value="True">
                 <Setter Property="Content" Value="▢"/>
+                <Setter Property="ToolTip" Value="Развернуть" />
             </DataTrigger>
             <DataTrigger Binding="{Binding IsMaximize}" Value="False">
                 <Setter Property="Content" Value="❐"/>
+                <Setter Property="ToolTip" Value="Восстановить" />
             </DataTrigger>
         </Style.Triggers>
     </Style>

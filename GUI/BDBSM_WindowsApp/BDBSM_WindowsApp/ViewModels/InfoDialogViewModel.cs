@@ -92,7 +92,6 @@ namespace BDBSM_WindowsApp.ViewModels
         public static readonly DependencyProperty InputTextProperty =
             DependencyProperty.Register("InputText", typeof(string), typeof(InfoDialogViewModel), new PropertyMetadata(""));
 
-        #region Команды
 
 
         public bool IsFirstClick
@@ -105,6 +104,8 @@ namespace BDBSM_WindowsApp.ViewModels
         public static readonly DependencyProperty IsFirstClickProperty =
             DependencyProperty.Register("IsFirstClick", typeof(bool), typeof(InfoDialogViewModel), new PropertyMetadata(false));
 
+
+
         public bool IsSecondClick
         {
             get { return (bool)GetValue(IsSecondClickProperty); }
@@ -114,6 +115,10 @@ namespace BDBSM_WindowsApp.ViewModels
         // Using a DependencyProperty as the backing store for IsFirstClick.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsSecondClickProperty =
             DependencyProperty.Register("IsSecondClick", typeof(bool), typeof(InfoDialogViewModel), new PropertyMetadata(false));
+        #region Команды
+
+
+
         #region FirstButtonCommand
         public ICommand AcceptCommand { get; }
 
@@ -121,6 +126,7 @@ namespace BDBSM_WindowsApp.ViewModels
         {
             IsFirstClick = true;
             DialogResult = true;
+
             Close();
         }
         #endregion
@@ -132,6 +138,7 @@ namespace BDBSM_WindowsApp.ViewModels
         {
             IsSecondClick = true;
             DialogResult = true;
+
             Close();
         }
         #endregion
@@ -157,6 +164,7 @@ namespace BDBSM_WindowsApp.ViewModels
 
             return ShowDialog(this, new InfoDialog());
         }
+        
         public bool? ShowDialog()
         {
             FirstButtonText = "";

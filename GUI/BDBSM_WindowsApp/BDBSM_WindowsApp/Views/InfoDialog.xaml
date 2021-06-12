@@ -83,7 +83,8 @@
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
                    Margin="0,0,0,65"
-                   FontSize="14"/>
+                   FontSize="14"
+                   ToolTip="Закрыть"/>
         <TextBox x:Name="InputText"
                  Style="{DynamicResource MaterialDesignTextBox}"
                  Grid.Row="1" 

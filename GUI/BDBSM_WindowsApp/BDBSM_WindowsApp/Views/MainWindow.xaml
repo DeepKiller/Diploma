@@ -65,15 +65,16 @@
             </Grid.ColumnDefinitions>
 
             <TextBox Text="{Binding DatabaseName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
-                       Foreground="White"
-                       Grid.Column="5"
-                       Grid.ColumnSpan="2"
-                       FontSize="20"
-                       FontFamily="/Fonts/#Rubik"
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
-                       TextAlignment="Center"
-                       FontWeight="Light"/>
+                     Foreground="White"
+                     Grid.Column="5"
+                     Grid.ColumnSpan="2"
+                     FontSize="20"
+                     FontFamily="/Fonts/#Rubik"
+                     VerticalAlignment="Center"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center"
+                     FontWeight="Light"
+                     BorderThickness="0"/>
 
             <Button  Style="{StaticResource WindowControlButtonTheme}"
                      Command="{Binding HelpCommand}"
@@ -81,7 +82,8 @@
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
                      FontSize="14"
-                     Content="?"/>
+                     Content="?"
+                     ToolTip="Справка"/>
 
             <Button  Command="{Binding RollUpWindowCommand}"
                      Style="{StaticResource WindowControlButtonTheme}"
@@ -89,14 +91,16 @@
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
                      FontSize="14"
-                     Content="–"/>
+                     Content="–"
+                     ToolTip="Свернуть"/>
 
             <Button Command="{Binding ExpandWindowCommand}"
                      Style="{StaticResource WindowControlButtonTheme}"
                      Grid.Column="10"
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
-                     FontSize="14"/>
+                     FontSize="14"
+                    ToolTip="Развернуть"/>
 
             <Button Command="{Binding CloseWindowCommand}"
                     Style="{StaticResource WindowControlButtonTheme}"
@@ -104,7 +108,8 @@
                     VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Center"
                     FontSize="14"
-                    Content="×"/>
+                    Content="×"
+                    ToolTip="Закрыть"/>
         </Grid>
 
         <Grid Grid.Row="1" 
@@ -112,10 +117,6 @@
               Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
@@ -149,7 +150,63 @@
 
             </Menu>
         </Grid>
+        <Grid Grid.Column="2"
+              Grid.Row="1"
+                  Width="550"
+                  HorizontalAlignment="Right">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0"
+                     Text="{Binding SelectedTable.Name, Mode=TwoWay}" 
+                     Padding="0,10,0,0"
+                     FontSize="18"
+                     Foreground="White"
+                     Margin="100,0,0,0"
+                     HorizontalAlignment="Center">
+            </TextBlock>
 
+            <Button Command="{Binding EditCurrentTableNameCommand}"
+                    CommandParameter="{Binding SelectedTable}"
+                    Style="{StaticResource WindowControlButtonTheme}"
+                    Width="50"
+                    Content="✎"
+                    Grid.Column="1" Height="Auto"
+                    ToolTip="Изменить название таблицы">
+                <Button.RenderTransform>
+                    <ScaleTransform ScaleX="-1" CenterX="25"/>
+                </Button.RenderTransform>
+            </Button>
+            <Button Command="{Binding AddColumnCommand}"
+                    CommandParameter="{Binding SelectedTable}"
+                    Style="{StaticResource WindowControlButtonTheme}"
+                    Width="50"
+                    Content="+"
+                    Grid.Column="2" Height="Auto"
+                    ToolTip="Создать колонку"/>
+            <Button Command="{Binding DeleteColumnCommand}"
+                    CommandParameter="{Binding SelectedTable}"
+                    Width="50"
+                    Content="-"
+                    Style="{StaticResource WindowControlButtonTheme}"
+                    Grid.Column="3" 
+                    Height="Auto"
+                    ToolTip="Удалить колонку"/>
+            <Button Command="{Binding DeleteCurrentTableCommand}"
+                    CommandParameter="{Binding SelectedTable}"
+                    Style="{StaticResource WindowControlButtonTheme}"
+                    Width="50"
+                    Content="⌫" 
+                    Foreground="Red"
+                    Grid.Column="4" 
+                    Height="Auto"
+                    ToolTip="Удалить таблицу"/>
+
+        </Grid>
         <Grid Grid.Row="2" 
               Background="#9ba4b4">
             <Grid.ColumnDefinitions>
@@ -170,30 +227,43 @@
                      Margin="10,5" 
                      Height="30" 
                      Width="330" 
-                     Grid.ColumnSpan="3" />
+                     Grid.ColumnSpan="3" 
+                     ToolTip="Название базы данных"/>
 
-            <TextBox Grid.Row="1" 
-                     Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
-                     Height="25" 
-                     Background="WhiteSmoke"
-                     TextAlignment="Left"
-                     Padding="5,4,5,0"
-                     VerticalAlignment="Bottom" 
-                     Margin="5,1,5,1" 
-                     Grid.ColumnSpan="3"/>
+            <StackPanel Grid.Row="1" 
+                        Grid.ColumnSpan="3"
+                        Orientation="Horizontal">
 
-            <ListBox Margin="1,0,0,0" 
+                <TextBox Grid.Row="1" 
+                         Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
+                         Height="25" 
+                         Background="WhiteSmoke"
+                         TextAlignment="Left"
+                         Padding="5,4,5,0"
+                         VerticalAlignment="Bottom" 
+                         Margin="5,-1,5,1" 
+                         Grid.ColumnSpan="3" 
+                         Width="220"
+                         BorderThickness="0"/>
+                <Label Content="Поиск по таблицам"
+                       Foreground="Black"
+                       Background="White"
+                       Margin="-4,-1,0,1"
+                       BorderThickness="0"/>
+            </StackPanel>
+            <ListBox Margin="1,5,0,0" 
                      Grid.Row="2" 
-                     ItemsSource="{Binding Tables}" 
-                     SelectedItem="{Binding SelectedTable}"
+                     ItemsSource="{Binding Tables, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                     SelectedItem="{Binding SelectedTable, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                      DisplayMemberPath="Name" Grid.ColumnSpan="3">
 
                 <ListBox.ContextMenu>
                     <ContextMenu  DataContext="{Binding RelativeSource={RelativeSource Self}, Path=PlacementTarget.DataContext}">
                         <MenuItem Header="Создать таблицу"
                                   Command="{Binding CreateNewTableCommand}"/>
-
-                        <MenuItem Header="Добавить таблицу из файла"/>
+                        <MenuItem Header="Удалить таблицу"
+                                  Command="{Binding DeleteTableCommand}"
+                                  CommandParameter="{Binding Tables}"/>
                     </ContextMenu>
                 </ListBox.ContextMenu>
             </ListBox>
@@ -203,7 +273,22 @@
                   Grid.Column="1"
                   ItemsSource="{Binding DataTable}"
                   AutoGenerateColumns="True"
-                  BorderBrush="White">
+                  BorderBrush="White"
+                  SelectionUnit="FullRow"
+                  SelectionMode="Extended"
+                  CanUserDeleteRows="True"
+                  CurrentColumn="{Binding SelectedColumn, Mode=TwoWay}">
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectedCellsChanged">
+                    <i:InvokeCommandAction Command="{Binding SelectedCellsChangedCommand}"
+                                           CommandParameter="{Binding SelectedTable}"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding UpdateSelectedItemCommand}"
+                                           CommandParameter="{Binding SelectedItem}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <DataGrid.ColumnHeaderStyle>
                 <Style TargetType="DataGridColumnHeader" 
                        BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
@@ -228,7 +313,12 @@
                     <MenuItem Header="Сохранить" 
                               Command="{Binding SaveCurrentTableCommand}"
                               CommandParameter="{Binding SelectedTable}"/>
-                    
+                    <MenuItem Header="Удалить выбранный ряд" 
+                              Command="{Binding DeleteCurrentRowCommand}"
+                              CommandParameter="{Binding SelectedItem}"/>
+                    <MenuItem Header="Изменить имя выбранной колонки" 
+                              Command="{Binding EditCurrentColumnNameCommand}"
+                              CommandParameter="{Binding SelectedColumn}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
         </DataGrid>

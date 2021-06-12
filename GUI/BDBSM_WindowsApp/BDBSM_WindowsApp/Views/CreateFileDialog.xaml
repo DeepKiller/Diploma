@@ -63,7 +63,8 @@
                 FontSize="14" 
                 Margin="225,0,0,0"
                 Background="Red"
-                Content="×"/>
+                Content="×"
+                ToolTip="Закрыть"/>
 
         <Grid Grid.RowSpan="2" 
               Background="#14274e">
@@ -104,7 +105,9 @@
                         BorderBrush="Transparent" 
                         Height="Auto"
                         Margin="0,5,5,20"
-                        VerticalAlignment="Top" Width="Auto">
+                        VerticalAlignment="Top" 
+                        Width="Auto"
+                        ToolTip="Выбрать путь">
                     <Image Source="/Images/Icons/Open.png" 
                            Width="25"
                            RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -118,7 +121,9 @@
                     VerticalAlignment="Bottom"
                     HorizontalAlignment="Right" 
                     Width="83"
-                    Margin="0,0,5,5" Grid.RowSpan="2">
+                    Margin="0,0,5,5" 
+                    Grid.RowSpan="2"
+                    ToolTip="Создать базу данных">
                 <Image Source="/Images/Icons/CreateNew.png" 
                        Margin="0,0,0,0"
                        VerticalAlignment="Bottom" 

@@ -86,7 +86,8 @@
                 FontSize="14" 
                 Margin="225,0,0,0"
                 Background="Red"
-                Content="×"/>
+                Content="×"
+                ToolTip="Закрыть"/>
 
         <Label Grid.Row="0" 
                Grid.ColumnSpan="2" 

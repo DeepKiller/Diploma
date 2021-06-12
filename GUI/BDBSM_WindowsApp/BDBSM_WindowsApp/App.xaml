@@ -8,7 +8,7 @@
             <FontFamily x:Key="Dosis">./Fonts/Dosis.ttf#Dosis</FontFamily>
             <FontFamily x:Key="Rubik">./Fonts/Rubik.ttf#Rubik</FontFamily>
             <FontFamily x:Key="Rubik-Italic">./Fonts/Rubik-Italic.ttf#Rubik-Italic</FontFamily>
-            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#394867"/>
+            <SolidColorBrush x:Key="PrimaryHueLightBrush" Color="#14274e"/>
             <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush" Color="#FFFFFF"/>
             <SolidColorBrush x:Key="PrimaryHueMidBrush" Color="#14274e"/>
             <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush" Color="#FFFFFF"/>

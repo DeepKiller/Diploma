@@ -78,7 +78,8 @@
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
                      FontSize="14" 
-                     Content="?"/>
+                     Content="?"
+                     ToolTip="Справка"/>
 
             <Button  Command="{Binding RollUpWindowCommand}"
                      Style="{StaticResource WindowControlButtonTheme}"
@@ -86,14 +87,16 @@
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
                      FontSize="14"
-                     Content="–"/>
+                     Content="–"
+                     ToolTip="Свернуть"/>
 
             <Button  Command="{Binding ExpandWindowCommand}"
                      Style="{StaticResource WindowControlButtonTheme}"
                      Grid.Column="10"
                      VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center"
-                     FontSize="14"/>
+                     FontSize="14"
+                     ToolTip="Развернуть"/>
 
             <Button Command="{Binding CloseWindowCommand}"
                     Style="{StaticResource WindowControlButtonTheme}"
@@ -101,7 +104,8 @@
                     VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Center"
                     FontSize="14"
-                    Content="×"/>
+                    Content="×"
+                    ToolTip="Закрыть"/>
         </Grid>
 
         <Grid Grid.Column="0" 

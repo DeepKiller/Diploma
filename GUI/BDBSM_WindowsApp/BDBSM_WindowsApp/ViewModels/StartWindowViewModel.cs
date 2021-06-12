@@ -3,7 +3,6 @@ using BDBSM_WindowsApp.Infrastructure.Commands;
 using BDBSM_WindowsApp.ViewModels.Base;
 using BDBSM_WindowsApp.Views;
 using Microsoft.Win32;
-using System;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
@@ -77,14 +76,14 @@ namespace BDBSM_WindowsApp.ViewModels
             DataBase.Path = openFileDialog.FileName;
 
 
-            var infoDialogViewModel = new InfoDialogViewModel();
+            var infoDialog = new InfoDialogViewModel();
             try
             {
-                if (infoDialogViewModel.ShowDialog( "BDB SECYRITY", "Введите пароль базы данных") == false)
+                if (infoDialog.ShowDialog( "BDB SECYRITY", "Введите пароль базы данных") == false)
                     return;
 
                 #region Открытие файла.
-                DataBase.DeCryptData(infoDialogViewModel.InputText);
+                DataBase.DeCryptData(infoDialog.InputText);
 
                 DataBase.DecompresByGlobalPath();
 
@@ -97,7 +96,7 @@ namespace BDBSM_WindowsApp.ViewModels
             }
             catch (DataBase.IncorrectPasswordException)
             {
-                infoDialogViewModel.ShowDialog( "BDB ERROR", "Неправильный пароль", Visibility.Hidden);
+                infoDialog.ShowDialog( "BDB ERROR", "Неправильный пароль", Visibility.Hidden);
             }
         }
 

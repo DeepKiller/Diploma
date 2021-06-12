@@ -5,7 +5,9 @@ using BDBSM_WindowsApp.Views;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using static BDB.Table;
@@ -20,9 +22,11 @@ namespace BDBSM_WindowsApp.ViewModels
             set { SetValue(DatabaseNameProperty, value); }
         }
 
+
         // Using a DependencyProperty as the backing store for DatabaseName.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty DatabaseNameProperty =
             DependencyProperty.Register("DatabaseName", typeof(string), typeof(MainWindowViewModel), new PropertyMetadata(""));
+
 
         #region FilterText
         public string FilterText
@@ -76,19 +80,9 @@ namespace BDBSM_WindowsApp.ViewModels
 
             current._previousTable = current.SelectedTable;
 
-            var data = new DataTable();
-            var id = new string[] { current.SelectedTable.Name };
+            current.DataTable = DataTableUpdate(current.SelectedTable);
 
-            if (current.SelectedTable.Rows.Count == 0)
-                current.SelectedTable.SetColNames(id);
-
-            foreach (var column in current.SelectedTable.Rows[0].Cols)
-                data.Columns.Add(column.Data);
-
-            for (int i = 1; i < current.SelectedTable.Rows.Count; i++)
-                data.Rows.Add(GetArrayFromRow(current.SelectedTable.Rows[i]));
-
-            current.DataTable = data.AsDataView();
+            current.Tables.Refresh();
         }
         private void SavePreviousTable()
         {
@@ -97,6 +91,7 @@ namespace BDBSM_WindowsApp.ViewModels
 
             _previousTable.Rows.Clear();
             _previousTable.Ids.Clear();
+
             var rows = new string[DataTable.Table.Columns.Count];
 
             for (int i = 0; i < rows.Length; i++)
@@ -127,10 +122,10 @@ namespace BDBSM_WindowsApp.ViewModels
 
             for (int i = 0; i < row.Cols.Count; i++)
                 arr[i] = row.Cols[i].Data;
-            return arr;
-        } 
-        #endregion
 
+            return arr;
+        }
+        #endregion
 
         public DataView DataTable
         {
@@ -156,21 +151,54 @@ namespace BDBSM_WindowsApp.ViewModels
 
 
 
-        #region Команды
-
-        #region SaveDatabaseCommand
-
-        public ICommand SaveDatabaseCommand { get; }
-
-        private bool CanSaveDatabaseCommand(object p) => true;
-        private void OnSaveDatabaseCommandExecuted(object p)
+        public DataGridColumn CurrentColumn
         {
-            DataBase.MakeBaseFile(DataBase.Path);
-            DataBase.CompresByGlobalPath();
-            DataBase.CryptData();
+            get { return (DataGridColumn)GetValue(CurrentColumnProperty); }
+            set { SetValue(CurrentColumnProperty, value); }
         }
 
-        #endregion
+        // Using a DependencyProperty as the backing store for CurrentCell.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CurrentColumnProperty =
+            DependencyProperty.Register("CurrentCell", typeof(DataGridColumn), typeof(MainWindowViewModel), new PropertyMetadata(null));
+
+
+
+        public int SelectedRowId
+        {
+            get { return (int)GetValue(SelectedRowIdProperty); }
+            set { SetValue(SelectedRowIdProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectedRowId.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectedRowIdProperty =
+            DependencyProperty.Register("SelectedRowId", typeof(int), typeof(MainWindowViewModel), new PropertyMetadata(0));
+
+
+
+        public string SelectedColumnName
+        {
+            get { return (string)GetValue(SelectedColumnNameProperty); }
+            set { SetValue(SelectedColumnNameProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectedColumnName.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectedColumnNameProperty =
+            DependencyProperty.Register("SelectedColumnName", typeof(string), typeof(MainWindowViewModel), new PropertyMetadata(""));
+
+
+
+
+        public DataGridColumn SelectedColumn
+        {
+            get { return (DataGridColumn)GetValue(SelectedColumnProperty); }
+            set { SetValue(SelectedColumnProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SelectedColumn.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SelectedColumnProperty =
+            DependencyProperty.Register("SelectedColumn", typeof(DataGridColumn), typeof(MainWindowViewModel), new PropertyMetadata(null));
+
+        #region Команды
 
         #region SaveDatabaseHowCommand
 
@@ -191,9 +219,11 @@ namespace BDBSM_WindowsApp.ViewModels
             if (saveFileDialog.ShowDialog() == false)
                 return;
             
-            var tables = DataBase.GetTables();
+
             DataBase.Path = saveFileDialog.FileName;
 
+            var tables = DataBase.GetTables();
+            
             foreach (var table in tables)
             {
                 table.DeleteTable();
@@ -215,10 +245,24 @@ namespace BDBSM_WindowsApp.ViewModels
             DataBase.DisassembleBaseFile();
             #endregion
 
-            var infoDialogViewModel = new InfoDialogViewModel();
+            var infoDialog = new InfoDialogViewModel();
 
-            infoDialogViewModel.ShowDialog( "BDB NOTIFICATION", "База данных успешна сохранена в новом пути!", Visibility.Hidden);
+            infoDialog.ShowDialog( "BDB NOTIFICATION", "База данных успешна сохранена в новом пути!", Visibility.Hidden);
         }
+        #endregion
+
+        #region SaveDatabaseCommand
+
+        public ICommand SaveDatabaseCommand { get; }
+
+        private bool CanSaveDatabaseCommand(object p) => true;
+        private void OnSaveDatabaseCommandExecuted(object p)
+        {
+            DataBase.MakeBaseFile(DataBase.Path);
+            DataBase.CompresByGlobalPath();
+            DataBase.CryptData();
+        }
+
         #endregion
 
         #region OpenDatabaseCommand
@@ -229,10 +273,8 @@ namespace BDBSM_WindowsApp.ViewModels
             Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
 
             #region Настройки диалогового окна.
-
             openFileDialog.Title = "Путь для новой Базы данных";
             openFileDialog.Filter = "Biba Database|*.bdb";
-
             #endregion
 
             if (openFileDialog.ShowDialog() == false)
@@ -240,13 +282,13 @@ namespace BDBSM_WindowsApp.ViewModels
 
             DataBase.Path = openFileDialog.FileName;
 
-            var infoDialogViewModel = new InfoDialogViewModel();
+            var infoDialog = new InfoDialogViewModel();
 
-            if (infoDialogViewModel.ShowDialog("BDBSECYRITY", "Введите пароль базы данных") == false)
+            if (infoDialog.ShowDialog("BDBSECYRITY", "Введите пароль базы данных") == false)
                 return;
 
             #region Открытие файла.
-            DataBase.DeCryptData(infoDialogViewModel.InputText);
+            DataBase.DeCryptData(infoDialog.InputText);
 
             DataBase.DecompresByGlobalPath();
 
@@ -279,30 +321,36 @@ namespace BDBSM_WindowsApp.ViewModels
         {
             var infoDialog = new InfoDialogViewModel();
 
-            string tableName;
-
             if (infoDialog.ShowDialog("BDB CREATOR", "Введите имя таблицы") == false)
                 return;
 
-            tableName = infoDialog.InputText + ".bdbt";
+            var tableName = infoDialog.InputText + ".bdbt";
 
             try
             {
                 var tables = DataBase.GetTables();
-
+                
                 if (tables.Find(x => x.Name == infoDialog.InputText) != null)
                 {
                     infoDialog.ShowDialog("BDB INFORMER", "Таблица с таким именем уже существует", Visibility.Hidden);
                     return;
                 }
+
+                var regex = new Regex(@"\W");
+                
+                if(regex.IsMatch(infoDialog.InputText))
+                { 
+                    infoDialog.ShowDialog("BDB INFORMER", "Неверно задано имя таблицы", Visibility.Hidden);
+                    return;
+                }
             }
+
             catch { }
 
             var table = new Table(SetOnlyPath(DataBase.Path) + tableName);
 
             table.SaveChanges();
             
-
             Tables = CollectionViewSource.GetDefaultView(DataBase.GetTables());
         }
 
@@ -323,6 +371,39 @@ namespace BDBSM_WindowsApp.ViewModels
         private bool CanSaveTablesCommand(object p) => true;
         #endregion
 
+        #region DeleteTableCommand
+        public ICommand DeleteTableCommand { get; }
+
+        private void OnDeleteTableCommandExecuted(object p)
+        {
+            if (Tables == null)
+                return;
+
+            var infoDialog = new InfoDialogViewModel();
+
+            if (infoDialog.ShowDialog("BDB CHANGER", "Введите название таблицы, которую следуте удалить") == false)
+                return;
+
+            var tables = DataBase.GetTables();
+
+            var table = tables.Find(x => x.Name == infoDialog.InputText);
+
+            if (table == null)
+            {
+                infoDialog.ShowDialog("BDB ALERT", "Таблица не найдена", Visibility.Hidden);
+                return;
+            }
+
+            table.DeleteTable();
+
+            tables.Remove(tables.Find(x => x.Name == infoDialog.InputText));
+
+            Tables = CollectionViewSource.GetDefaultView(tables);
+
+            infoDialog.ShowDialog("BDB INFORMER", "Таблица успешно удалена", Visibility.Hidden);
+        }
+        #endregion
+
         #region SaveCurrentTableCommand
         public ICommand SaveCurrentTableCommand { get; }
 
@@ -332,9 +413,247 @@ namespace BDBSM_WindowsApp.ViewModels
                 return;
 
             currentTable.SaveChanges();
+
             SavePreviousTable();
         }
         private bool CanSaveCurrentTableCommand(object p) => true;
+        #endregion
+
+        #region SelectedCellsChangedCommand
+        public ICommand SelectedCellsChangedCommand { get; }
+
+        private void OnSelectedCellsChangedCommandExecuted(object p)
+        {
+            if (!(p is Table currentTable))
+                return;
+
+            SavePreviousTable();
+
+            currentTable.SaveChanges();
+
+            _previousTable = currentTable;
+            
+            DataTable = DataTableUpdate(currentTable);
+        }
+        #endregion
+
+        #region EditCurrentTableNameCommand
+        public ICommand EditCurrentTableNameCommand { get; }
+
+        private void OnEditCurrentTableNameCommandExecuted(object p)
+        {
+            if (!(p is Table currentTable))
+                return;
+
+            var infoDialog = new InfoDialogViewModel();
+
+            if (infoDialog.ShowDialog("BDB EDITOR", "Введите новое название таблицы") == false)
+                return;
+
+            var regex = new Regex(@"\W");
+
+            if (regex.IsMatch(infoDialog.InputText))
+            {
+                infoDialog.ShowDialog("BDB INFORMER", "Неверно задано имя таблицы", Visibility.Hidden);
+                return;
+            }
+
+            currentTable.Name = infoDialog.InputText;
+
+            DataTable = DataTableUpdate(currentTable);
+        }
+
+        #endregion
+
+        #region EditCurrentColumnNameCommand
+        public ICommand EditCurrentColumnNameCommand { get; }
+
+        private void OnEditCurrentColumnNameCommandExecuted(object p)
+        {
+            if (!(p is DataGridColumn currentColumn))
+                return;
+
+            var infoDialog = new InfoDialogViewModel();
+
+            if (currentColumn.Header.ToString().ToLower() == "id")
+            {
+                infoDialog.ShowDialog("BDB ALERT", "Изменить \"id\" нельзя");
+                return;
+            }
+            var headerNames = new string[SelectedTable.Rows[0].Cols.Count];
+
+            infoDialog.ShowDialog("BDB EDITOR", "Введите новое имя колонки");
+            currentColumn.Header = infoDialog.InputText;
+            SelectedTable.Rows[0].ChangeRow()
+            SelectedTable.SaveChanges();
+
+            DataTable = DataTableUpdate(SelectedTable);
+        }
+        #endregion
+
+        #region DeleteCurrentTableCommand
+        public ICommand DeleteCurrentTableCommand { get; }
+
+        private void OnDeleteCurrentTableCommandExecuted(object p)
+        {
+            var infoDialog = new InfoDialogViewModel();
+
+            if (!(p is Table currentTable))
+            {
+                infoDialog.ShowDialog("BDB INFORMER", "Выберите таблицу, которую следует удалить", Visibility.Hidden);
+                return;
+            }
+
+            if (infoDialog.ShowDialog("BDB ALERT", "Вы действительно хотите удалить выбранную таблицу?", Visibility.Hidden, "", "ДА") == false)
+                return;
+
+            currentTable.DeleteTable();
+
+            _previousTable = null;
+
+            var tables = DataBase.GetTables();
+
+            tables.Remove(currentTable);
+
+            Tables = CollectionViewSource.GetDefaultView(tables);
+            Tables.Refresh();
+            SelectedTable = null;
+            DataTable = new DataTable().DefaultView; 
+        }
+        #endregion
+
+        #region DeleteColumnCommand
+        public ICommand DeleteColumnCommand { get; }
+
+        private void OnDeleteColumnCommand(object p)
+        {
+            if(!(p is Table currentTable))
+                return;
+
+            var infoDialog = new InfoDialogViewModel();
+
+            if (infoDialog.ShowDialog("BDB DELETER", "Введите название колонки для удаления") == false)
+                return;
+
+            var columnNames = new List<string>();
+            int position = currentTable.Rows[0].Cols.FindIndex(x => x.Data == infoDialog.InputText);
+
+            if(position == -1)
+            {
+                infoDialog.ShowDialog("BDB ALERT", "Такой колонки не существует", Visibility.Hidden);
+                return;
+            }
+            if (infoDialog.InputText == "id")
+            {
+                infoDialog.ShowDialog("BDB ALERT", "Колонку \"id\" удалить нельзя", Visibility.Hidden);
+                return;
+            }
+
+            foreach (Row row in currentTable.Rows)
+                row.Cols.RemoveAt(position);
+
+            foreach (Row.Column column in currentTable.Rows[0].Cols)
+            { 
+                if (column.Data != infoDialog.InputText)
+                { 
+                    columnNames.Add(column.Data);
+                }
+            }
+
+            currentTable.Rows[0] = new Row(columnNames.ToArray());
+
+            currentTable.SaveChanges();
+
+            DataTable = DataTableUpdate(currentTable);
+        }
+        #endregion
+
+        #region AddColumnCommand
+        public ICommand AddColumnCommand { get; }
+
+        private void OnAddColumnCommandExecuted(object p)
+        {
+            if (!(p is Table currentTable))
+                return;
+            
+            var infoDialog = new InfoDialogViewModel();
+
+            if (infoDialog.ShowDialog( "BDB CREATOR", "Введите название столбца") == false)
+                return;
+        
+            var columnName = infoDialog.InputText;
+
+            if (currentTable.Rows[0].Cols.Find(x => x.Data == columnName) != null)
+            {   
+                infoDialog.ShowDialog("BDB INFORMER", "Такое имя колонки уже существует", Visibility.Hidden);
+                return;
+            }
+
+            var rows = new string[DataTable.Table.Columns.Count + 1];
+
+            for (int i = 0; i < rows.Length - 1; i++)
+            {
+                rows[i] = DataTable.Table.Columns[i].ColumnName;
+            }
+
+            rows[rows.Length - 1] = columnName;
+
+            currentTable.Rows[0].Cols.Add(new Row.Column(columnName));
+
+            currentTable.SaveChanges();
+
+            DataTable = DataTableUpdate(currentTable);
+        }
+
+        private bool CanAddColumnCommand(object p) => true;
+        #endregion
+
+        #region DeleteCurrentRowCommand
+        public ICommand DeleteCurrentRowCommand { get; }
+
+        private void OnDeleteCurrentRowCommandExecuted(object p)
+        {
+            if (SelectedRowId == -1)
+            {
+                new InfoDialogViewModel().ShowDialog("BDB ALERT", "Такой колонки не существует");
+                return;
+            }
+
+            SelectedTable.DeleteRow(SelectedRowId);
+
+            SelectedTable.SaveChanges();
+
+            DataTable = DataTableUpdate(SelectedTable);
+        }
+        #endregion
+
+        #region UpdateSelectedItemCommand
+        public ICommand UpdateSelectedItemCommand { get; }
+        private void OnUppdateSelectedItemCommand(object p)
+        {
+            if (!(p is DataRowView selectedItem))
+                return;
+
+            if(selectedItem.Row.ItemArray[0] == System.DBNull.Value || selectedItem.Row.ItemArray[0].GetType() == "".GetType())
+                return;
+            SelectedColumnName = SelectedColumn.Header.ToString();
+            SelectedRowId = int.Parse(selectedItem.Row.ItemArray[0].ToString());
+        }
+        #endregion
+
+        #region CreateRelationCommand
+        public ICommand CreateRelationCommand { get; }
+
+        private void OnCreateRelationCommandExecuted(object p)
+        {
+            if(DataBase.GetTables().Count < 2)
+            {
+                new InfoDialogViewModel().ShowDialog("BDB ALERT", "Должно быть хотя бы две таблицы для создания связей", Visibility.Hidden);
+                return;
+            }
+            Show(new CreateRelationViewModel(DataBase.GetTables()), new CreateRelation());
+        }
+        private bool CanCreateRelationCommand(object p) => true;
         #endregion
 
         #region Close
@@ -389,59 +708,6 @@ namespace BDBSM_WindowsApp.ViewModels
         }
         #endregion
 
-        #region CreateRelationCommand
-        public ICommand CreateRelationCommand { get; }
-
-        private void OnCreateRelationCommandExecuted(object p)
-        {
-            Show(new CreateRelationViewModel(Tables), new CreateRelation());
-        }
-        private bool CanCreateRelationCommand(object p) => true;
-        #endregion
-
-        #region AddColumnCommand
-        public ICommand AddColumnCommand { get; }
-
-        private void OnAddColumnCommandExecuted(object p)
-        {
-            var infoDialogViewModel = new InfoDialogViewModel();
-
-            if (infoDialogViewModel.ShowDialog( "BDB CREATOR", "Введите название столбца") == false)
-                return;
-
-            var columnName = infoDialogViewModel.InputText;
-
-            if (!(p is Table currentTable))
-                return;
-
-            //TODO: проверка наличия уже такой колонки. (c) Коля.
-
-            var rows = new string[DataTable.Table.Columns.Count + 1];
-
-            for (int i = 0; i < rows.Length - 1; i++)
-            {
-                rows[i] = DataTable.Table.Columns[i].ColumnName;
-            }
-
-            rows[rows.Length - 1] = columnName;
-
-            currentTable.Rows[0].Cols.Add(new Row.Column(columnName));
-
-            currentTable.SaveChanges();
-            var data = new DataTable();
-
-            foreach (var column in currentTable.Rows[0].Cols)
-                data.Columns.Add(column.Data);
-
-            for (int i = 1; i < currentTable.Rows.Count; i++)
-                data.Rows.Add(GetArrayFromRow(currentTable.Rows[i]));
-
-            DataTable = data.AsDataView();
-        }
-
-        private bool CanAddColumnCommand(object p) => true;
-        #endregion
-
         #endregion
 
         public MainWindowViewModel()
@@ -450,20 +716,30 @@ namespace BDBSM_WindowsApp.ViewModels
             Tables = CollectionViewSource.GetDefaultView(DataBase.GetTables());
             Tables.Filter = FilterTable;
 
-            SaveDatabaseCommand = new ActionCommand(OnSaveDatabaseCommandExecuted, CanSaveDatabaseCommand);
-            SaveDatabaseHowCommand = new ActionCommand(OnSaveDatabaseHowCommandExecuted, CanSaveDatabaseHowCommand);
-            OpenDatabaseCommand = new ActionCommand(OnOpenDatabaseCommand, null);
             CreateNewDatabaseCommand = new ActionCommand(OnCreateNewDatabaseCommandExecuted, CanCreateNewDatabaseCommand);
+            SaveDatabaseHowCommand = new ActionCommand(OnSaveDatabaseHowCommandExecuted, CanSaveDatabaseHowCommand);
+            SaveDatabaseCommand = new ActionCommand(OnSaveDatabaseCommandExecuted, CanSaveDatabaseCommand);
+            OpenDatabaseCommand = new ActionCommand(OnOpenDatabaseCommand);
             
             CreateNewTableCommand = new ActionCommand(OnCreateNewTableCommandExecute, CanCreateNewTableCommand);
-            SaveTablesCommand = new ActionCommand(OnSaveTablesCommandExecuted, CanSaveTablesCommand);
+            DeleteCurrentTableCommand = new ActionCommand(OnDeleteCurrentTableCommandExecuted);
+            DeleteTableCommand = new ActionCommand(OnDeleteTableCommandExecuted);
             SaveCurrentTableCommand = new ActionCommand(OnSaveCurrentTableCommandExecuted, CanSaveCurrentTableCommand);
+            SaveTablesCommand = new ActionCommand(OnSaveTablesCommandExecuted, CanSaveTablesCommand);
+            EditCurrentTableNameCommand = new ActionCommand(OnEditCurrentTableNameCommandExecuted);
 
+            DeleteColumnCommand = new ActionCommand(OnDeleteColumnCommand);
             AddColumnCommand = new ActionCommand(OnAddColumnCommandExecuted, CanAddColumnCommand);
+            
+            SelectedCellsChangedCommand = new ActionCommand(OnSelectedCellsChangedCommandExecuted);
+            EditCurrentColumnNameCommand = new ActionCommand(OnEditCurrentColumnNameCommandExecuted);
+            DeleteCurrentRowCommand = new ActionCommand(OnDeleteCurrentRowCommandExecuted);
+            
             CreateRelationCommand = new ActionCommand(OnCreateRelationCommandExecuted, CanCreateRelationCommand);
+            UpdateSelectedItemCommand = new ActionCommand(OnUppdateSelectedItemCommand);
         }
 
-        private string SetDatabaseName()
+        private static string SetDatabaseName()
         {
             var path = DataBase.Path;
             var countSymbolInName = 1;
@@ -481,7 +757,7 @@ namespace BDBSM_WindowsApp.ViewModels
             // Иначе из полного имени файла удаляется его имя.
             return countLetter <= 0 ? path : path.Remove(0, DataBase.Path.Length - (DataBase.Path.Length - countLetter));
         }
-        private string SetOnlyPath(string path)
+        private static string SetOnlyPath(string path)
         {
             var countSymbolInName = 1;
             for (int i = path.Length - 1; i >= 0; i--)
@@ -497,6 +773,23 @@ namespace BDBSM_WindowsApp.ViewModels
             // Если countLetter <= 0, то испльзуется путь к документам
             // Иначе из полного имени файла удаляется его имя.
             return countLetter <= 0 ? path : path.Remove(countLetter);
+        }
+
+        private static DataView DataTableUpdate(Table currentTable)
+        {
+            var data = new DataTable();
+            var id = new string[] { currentTable.Name };
+
+            if (currentTable.Rows.Count == 0)
+                currentTable.SetColNames(id);
+
+            foreach (var column in currentTable.Rows[0].Cols)
+                data.Columns.Add(column.Data);
+
+            for (int i = 1; i < currentTable.Rows.Count; i++)
+                data.Rows.Add(GetArrayFromRow(currentTable.Rows[i]));
+
+            return data.AsDataView();
         }
     }
 }

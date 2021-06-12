@@ -3,7 +3,7 @@
                     xmlns:local="clr-namespace:BDBSM_WindowsApp.Themes">
     <Style TargetType="Button" x:Key="MenuBarTheme" BasedOn="{StaticResource MaterialDesignFlatButton}">
         <Style.Setters>
-            <Setter Property="Background" Value="#394867" />
+            <Setter Property="Background" Value="#14274e" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Foreground" Value="White" />
             <Setter Property="Width" Value="Auto" />

@@ -11,27 +11,27 @@ namespace BDBSM_WindowsApp.ViewModels
 {
     class CreateRelationViewModel : BaseViewModel
     {
-        public ICollectionView Tables
+        public List<Table> Tables
         {
-            get { return (ICollectionView)GetValue(TablesProperty); }
+            get { return (List<Table>)GetValue(TablesProperty); }
             set { SetValue(TablesProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for Tables.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TablesProperty =
-            DependencyProperty.Register("Tables", typeof(ICollectionView), typeof(CreateRelationViewModel), new PropertyMetadata(null));
+            DependencyProperty.Register("Tables", typeof(List<Table>), typeof(CreateRelationViewModel), new PropertyMetadata(null));
 
 
 
-        public ICollectionView TablesWithoutSelected
+        public List<Table> TablesWithoutSelected
         {
-            get { return (ICollectionView)GetValue(TablesWithoutSelectedProperty); }
+            get { return (List<Table>)GetValue(TablesWithoutSelectedProperty); }
             set { SetValue(TablesWithoutSelectedProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for TablesWithoutSelected.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty TablesWithoutSelectedProperty =
-            DependencyProperty.Register("TablesWithoutSelected", typeof(ICollectionView), typeof(CreateRelationViewModel), new PropertyMetadata(null));
+            DependencyProperty.Register("TablesWithoutSelected", typeof(List<Table>), typeof(CreateRelationViewModel), new PropertyMetadata(null));
 
         #region FirstSelectedTable
         public Table FirstSelectedTable
@@ -56,10 +56,8 @@ namespace BDBSM_WindowsApp.ViewModels
 
             tables.Remove(tables.Find(x => x.Name == current.FirstSelectedTable.Name));
 
-            current.TablesWithoutSelected = CollectionViewSource.GetDefaultView(tables);
-
+            current.TablesWithoutSelected = tables;
             current.SecondTableColumns = new List<Table.Row.Column>();
-
             current.FirstTableColumns = current.FirstSelectedTable.Rows[0].Cols;
         } 
         #endregion
@@ -83,7 +81,6 @@ namespace BDBSM_WindowsApp.ViewModels
 
             if (current.SecondSelectedTable == null)
                 return;
-
 
             current.SecondTableColumns = current.SecondSelectedTable.Rows[0].Cols;
             current._secondSelectedTable = current.SecondSelectedTable;
@@ -148,19 +145,17 @@ namespace BDBSM_WindowsApp.ViewModels
             CreateRelationCommand = new ActionCommand(OnCreateRelationCommandExecuted, CanCreateRelationCommand);
         }
 
-        public CreateRelationViewModel(ICollectionView tables, Table currentTable)
+        public CreateRelationViewModel(List<Table> tables, Table currentTable)
         {
             Tables = tables;
             FirstSelectedTable = currentTable;
             TablesWithoutSelected = tables;
-        
             CreateRelationCommand = new ActionCommand(OnCreateRelationCommandExecuted, CanCreateRelationCommand);
         }
-        public CreateRelationViewModel(ICollectionView tables)
+        public CreateRelationViewModel(List<Table> tables)
         {
             Tables = tables;
             TablesWithoutSelected = tables;
-        
             CreateRelationCommand = new ActionCommand(OnCreateRelationCommandExecuted, CanCreateRelationCommand);
         }
     }
